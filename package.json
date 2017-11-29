@@ -1,0 +1,36 @@
+{
+  "name": "webpack-boilerplate",
+  "version": "1.0.0",
+  "description": "Webpack 3 boilerplate with babel and sass",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack-dashboard -- webpack-dev-server",
+    "build": "cross-env NODE_ENV=production webpack -p"
+  },
+  "keywords": [
+    "webpack",
+    "babel",
+    "sass"
+  ],
+  "author": "Jesper Orb",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.5.2",
+    "clean-webpack-plugin": "^0.1.16",
+    "cross-env": "^5.0.5",
+    "css-loader": "^0.28.4",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "html-webpack-plugin": "^2.28.0",
+    "node-sass": "^4.5.3",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.18.2",
+    "webpack": "^3.5.4",
+    "webpack-dashboard": "^0.4.0",
+    "webpack-dev-server": "^2.9.5"
+  },
+  "dependencies": {
+    "svg.js": "^2.6.3"
+  }
+}
