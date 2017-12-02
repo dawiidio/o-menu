@@ -36,11 +36,17 @@ const circleDegOrigin = -90;
 const closeTransform = slice => {
     const rotateStepDeg = -((slice.i * degForStep)+(degForStep/2))+circleDegOrigin;
     
-    slice.group.animate(200).rotate(rotateStepDeg, marginRadius, marginRadius);
+    slice.group.animate(200).rotate(rotateStepDeg, marginRadius, marginRadius).after(() =>{
+        slice.group.animate(200).scale(0.1, marginRadius, marginRadius)
+    })
 };
 
 const openTransform = slice => {
-    slice.group.animate(200).rotate(circleDegOrigin, marginRadius, marginRadius);
+    // slice.group.animate(200).rotate(circleDegOrigin, marginRadius, marginRadius);
+
+    slice.group.animate(200).scale(1, marginRadius, marginRadius).after(() => {
+        slice.group.animate(200).rotate(circleDegOrigin, marginRadius, marginRadius);
+    })
 };
 
 let open = true;
