@@ -7,11 +7,7 @@ const percentsToDeg = percents => (percents/100)*360;
 const sliceToDeg    = slices => percentsToDeg(
     ((360/slices) / 360) *100
 );
-const prepareGetCoordinatesForPercent = (origin, r) => degs => {
-    const x = origin + r * Math.cos(degs);
-    const y = origin + r * Math.sin(degs);
-    return [x,y];
-};
+
 const generatePart = () => {
     let part = Math.floor(Math.random()*255).toString(16);
     return part.length === 1 ? `0${part}` : part;
@@ -21,14 +17,20 @@ const generateColor = () => ['#', generatePart(), generatePart(), generatePart()
 const button  		 = document.querySelector('button');
 const width   		 = 350;
 const height  		 = 350;
+const innerCircleRadius = 80;
 const padding 		 = 30;
-const slices  		 = 7;
+const slices  		 = 5;
 const radius  		 = (width/2)-(padding/2);
 const marginRadius   = (width/2);
 const slicesArray    = [];
 const degForStep     = sliceToDeg(slices);
 const radForStep	 = degToRad(degForStep);
-const getCoordinatesForPercent = prepareGetCoordinatesForPercent(marginRadius, radius);
+const getCoordinatesForPercent = (origin, r, rads) => {
+    const x = origin + r * Math.cos(rads);
+    const y = origin + r * Math.sin(rads);
+    return [x,y];
+};
+// const getCoordinatesForPercent2 = prepareGetCoordinatesForPercent(marginRadius, innerCircleRadius + ((radius-innerCircleRadius)/2));
 const circleDegOrigin = -90;
 
 const closeTransform = slice => {
@@ -62,12 +64,12 @@ let cumulativeDeg = 0;
 for(let i = 0; i < slices; ++i){
     const group = draw.group().rotate(circleDegOrigin, marginRadius, marginRadius);
 
-    const [startX, startY] = getCoordinatesForPercent(cumulativeRadian);
-
+    const [startX, startY] = getCoordinatesForPercent(marginRadius, radius, cumulativeRadian);
+    
     cumulativeRadian += radForStep;
     cumulativeDeg += degForStep;
-
-    const [endX, endY] = getCoordinatesForPercent(cumulativeRadian);
+    
+    const [endX, endY] = getCoordinatesForPercent(marginRadius, radius, cumulativeRadian);
     
     const pathData = [
         `M ${startX} ${startY}`, // Move
@@ -78,10 +80,39 @@ for(let i = 0; i < slices; ++i){
     group
         .path(pathData)
         .fill(generateColor());
-    
-    group.text(`${i}`)
-    console.log();
 
+    const iconSize  = 50;
+    const iconMoveX = 0;
+    const iconMoveY = 0;
+    
+    // const t     = group.text(`${i}`);
+    const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+
+    // const bcr   = t.node.getBoundingClientRect();
+
+    const [textX, textY] = getCoordinatesForPercent(
+        marginRadius, 
+        innerCircleRadius + ((radius-innerCircleRadius)/3),
+        cumulativeRadian-(radForStep/2)
+    );
+    
+    fo.setAttributeNS(null, 'x', textX-(iconSize/2.15)+iconMoveX);
+    fo.setAttributeNS(null, 'y', textY-(iconSize/1.6)+iconMoveY);
+    fo.setAttributeNS(null, 'width', iconSize);
+    fo.setAttributeNS(null, 'height', iconSize);
+    fo.setAttributeNS(null, 'transform', `rotate(${Math.abs(circleDegOrigin)} ${textX} ${textY})`);
+    
+    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml"><i style="font-size: ${iconSize}px; color: white" class="fa fa-home"></i></div>`;
+    
+    group.node.appendChild(fo);
+
+    // group.circle(50).fill('#fff').move(textX-25, textY-25);
+    group.circle(2).fill('white').move(textX, textY);
+
+    // t.translate(textX, textY).rotate(Math.abs(circleDegOrigin));
+    //todo wystepuje dziwne przesuniecie
+    // console.log(t)
+    
     slicesArray.push({
         i,
         cumulativeDeg,
@@ -111,7 +142,7 @@ class Segment {
     }
 }
 
-const circleWidth = (width/2.2)-padding;
-draw.circle(circleWidth).move(marginRadius - (circleWidth/2), marginRadius-(circleWidth/2)).fill('#fff')
+const innerCircleDiameter = (innerCircleRadius*2)-padding;
+draw.circle(innerCircleDiameter).move(marginRadius - (innerCircleDiameter/2), marginRadius-(innerCircleDiameter/2)).fill('#fff')
 
 console.log(slicesArray)
