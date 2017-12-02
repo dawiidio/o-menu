@@ -84,6 +84,7 @@ for(let i = 0; i < slices; ++i){
     const iconSize  = 50;
     const iconMoveX = 0;
     const iconMoveY = 0;
+    const iconDistanceFromInnerCircle = 0;
     
     // const t     = group.text(`${i}`);
     const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
@@ -92,7 +93,7 @@ for(let i = 0; i < slices; ++i){
 
     const [textX, textY] = getCoordinatesForPercent(
         marginRadius, 
-        innerCircleRadius + ((radius-innerCircleRadius)/3),
+        innerCircleRadius + ((radius-innerCircleRadius)/3) + iconDistanceFromInnerCircle,
         cumulativeRadian-(radForStep/2)
     );
     
