@@ -43,7 +43,7 @@ const config = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist']), //cleans the dist folder
-    // new ExtractTextPlugin("css/styles.css"),
+    new ExtractTextPlugin("css/styles.css"),
     new HtmlWebpackPlugin({
       title: "Circle menu",
       template: 'index.ejs'

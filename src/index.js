@@ -18,13 +18,19 @@ const button  		 = document.querySelector('button');
 const width   		 = 350;
 const height  		 = 350;
 const innerCircleRadius = 80;
-const padding 		 = 30;
-const slices  		 = 5;
+const padding 		 = 60;
+const slices  		 = 6;
+const iconSize  = 50;
+const iconMoveX = 0;
+const iconMoveY = 0;
+const iconDistanceFromInnerCircle = 0;
 const radius  		 = (width/2)-(padding/2);
 const marginRadius   = (width/2);
 const slicesArray    = [];
 const degForStep     = sliceToDeg(slices);
 const radForStep	 = degToRad(degForStep);
+const innerCircleDiameter = (innerCircleRadius*2)-padding;
+let innerCircle, draw;
 const getCoordinatesForPercent = (origin, r, rads) => {
     const x = origin + r * Math.cos(rads);
     const y = origin + r * Math.sin(rads);
@@ -33,35 +39,57 @@ const getCoordinatesForPercent = (origin, r, rads) => {
 // const getCoordinatesForPercent2 = prepareGetCoordinatesForPercent(marginRadius, innerCircleRadius + ((radius-innerCircleRadius)/2));
 const circleDegOrigin = -90;
 
-const closeTransform = slice => {
+const closeTransformSegment = slice => {
     const rotateStepDeg = -((slice.i * degForStep)+(degForStep/2))+circleDegOrigin;
     
-    slice.group.animate(200).rotate(rotateStepDeg, marginRadius, marginRadius).after(() =>{
-        slice.group.animate(200).scale(0.1, marginRadius, marginRadius)
-    })
+    return new Promise((resolve, reject) => {
+        slice.group.animate(150).rotate(rotateStepDeg, marginRadius, marginRadius).after(() =>{
+            slice.group.animate(150).scale(0.01, marginRadius, marginRadius).after(( ) => {
+                resolve(1);
+            })
+        })
+    });
 };
 
-const openTransform = slice => {
-    // slice.group.animate(200).rotate(circleDegOrigin, marginRadius, marginRadius);
+const openTransformSegment = slice => {
+    return new Promise((resolve, reject) => {
+        slice.group.animate(150).scale(1, marginRadius, marginRadius).after(() => {
+            slice.group.animate(150).rotate(circleDegOrigin, marginRadius, marginRadius);
+        })
+    });
+};
 
-    slice.group.animate(200).scale(1, marginRadius, marginRadius).after(() => {
-        slice.group.animate(200).rotate(circleDegOrigin, marginRadius, marginRadius);
-    })
+const closeFn = () => {
+    const promisesArr = slicesArray.map(closeTransformSegment);
+    
+    Promise.all(promisesArr).then(() => {
+        innerCircle.animate(100).scale(0.01, marginRadius, marginRadius).after(() =>{
+            draw.addClass('hidden-animation-end');
+        })
+    });
+};
+
+const openFn = () => {
+    draw.removeClass('hidden-animation-end');
+
+    innerCircle.animate(100).scale(1, marginRadius, marginRadius).after(() => {
+        slicesArray.forEach(openTransformSegment);
+    });
 };
 
 let open = true;
 button.addEventListener('click', () => {
     if(open){
-        slicesArray.forEach(closeTransform);
+        closeFn();
         open = false;
     }
     else {
-        slicesArray.forEach(openTransform);
+        openFn();
         open = true;
     }
 });
 
-const draw = SVG('drawing');
+draw = SVG('drawing');
 draw.size(width, height).viewbox(0,0,width, height)//.style('transform', 'rotate(-0.25turn)');
 
 let cumulativeRadian = 0;
@@ -86,16 +114,8 @@ for(let i = 0; i < slices; ++i){
     group
         .path(pathData)
         .fill(generateColor());
-
-    const iconSize  = 50;
-    const iconMoveX = 0;
-    const iconMoveY = 0;
-    const iconDistanceFromInnerCircle = 0;
     
-    // const t     = group.text(`${i}`);
     const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
-
-    // const bcr   = t.node.getBoundingClientRect();
 
     const [textX, textY] = getCoordinatesForPercent(
         marginRadius, 
@@ -109,7 +129,7 @@ for(let i = 0; i < slices; ++i){
     fo.setAttributeNS(null, 'height', iconSize);
     fo.setAttributeNS(null, 'transform', `rotate(${Math.abs(circleDegOrigin)} ${textX} ${textY})`);
     
-    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml"><i style="font-size: ${iconSize}px; color: white" class="fa fa-home"></i></div>`;
+    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${iconSize}px; height: ${iconSize}px;"><i style="font-size: ${iconSize}px; color: white" class="fa fa-home"></i></div>`;
     
     group.node.appendChild(fo);
 
@@ -149,7 +169,9 @@ class Segment {
     }
 }
 
-const innerCircleDiameter = (innerCircleRadius*2)-padding;
-draw.circle(innerCircleDiameter).move(marginRadius - (innerCircleDiameter/2), marginRadius-(innerCircleDiameter/2)).fill('#fff')
+innerCircle = draw.circle(innerCircleDiameter)
+    .move(marginRadius - (innerCircleDiameter/2), marginRadius-(innerCircleDiameter/2))
+    .fill('#fff')
+    .attr('id', 'inner-circle');
 
 console.log(slicesArray)

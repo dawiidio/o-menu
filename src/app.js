@@ -1,2 +1,3 @@
-// import './scss/main.scss';
+import './style.scss';
 import './index';
+import './refactored';
