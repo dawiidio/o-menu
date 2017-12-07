@@ -15,15 +15,15 @@ const generatePart = () => {
 const generateColor = () => ['#', generatePart(), generatePart(), generatePart()].join('');
 
 const button  		 = document.querySelector('button');
-const width   		 = 350;
-const height  		 = 350;
-const innerCircleRadius = 80;
-const padding 		 = 60;
+const width   		 = 250;
+const height  		 = width;
+const innerCircleRadius = 45;
+const padding 		 = 10;
 const slices  		 = 6;
-const iconSize  = 50;
+const iconSize  = 38;
 const iconMoveX = 0;
 const iconMoveY = 0;
-const iconDistanceFromInnerCircle = 0;
+const iconDistanceFromInnerCircle = 7;
 const radius  		 = (width/2)-(padding/2);
 const marginRadius   = (width/2);
 const slicesArray    = [];
@@ -31,7 +31,7 @@ const degForStep     = sliceToDeg(slices);
 const radForStep	 = degToRad(degForStep);
 const innerCircleDiameter = (innerCircleRadius*2)-padding;
 let innerCircle, draw;
-const getCoordinatesForPercent = (origin, r, rads) => {
+const getCoordinatesForRads = (origin, r, rads) => {
     const x = origin + r * Math.cos(rads);
     const y = origin + r * Math.sin(rads);
     return [x,y];
@@ -43,8 +43,8 @@ const closeTransformSegment = slice => {
     const rotateStepDeg = -((slice.i * degForStep)+(degForStep/2))+circleDegOrigin;
     
     return new Promise((resolve, reject) => {
-        slice.group.animate(150).rotate(rotateStepDeg, marginRadius, marginRadius).after(() =>{
-            slice.group.animate(150).scale(0.01, marginRadius, marginRadius).after(( ) => {
+        slice.group.animate(100).rotate(rotateStepDeg, marginRadius, marginRadius).after(() =>{
+            slice.group.animate(100).scale(0.01, marginRadius, marginRadius).after(( ) => {
                 resolve(1);
             })
         })
@@ -53,8 +53,8 @@ const closeTransformSegment = slice => {
 
 const openTransformSegment = slice => {
     return new Promise((resolve, reject) => {
-        slice.group.animate(150).scale(1, marginRadius, marginRadius).after(() => {
-            slice.group.animate(150).rotate(circleDegOrigin, marginRadius, marginRadius);
+        slice.group.animate(100).scale(1, marginRadius, marginRadius).after(() => {
+            slice.group.animate(100).rotate(circleDegOrigin, marginRadius, marginRadius);
         })
     });
 };
@@ -78,19 +78,50 @@ const openFn = () => {
 };
 
 let open = true;
-button.addEventListener('click', () => {
+const onClick = () => {
+    closeFn();
+    open = false;
+    document.removeEventListener('click', onClick);
+}
+
+document.body.addEventListener('contextmenu', (ev) => {
+    ev.preventDefault();
+    
+    //todo wykrywac scrollbary, jesli sa to dodatkowe 35px do odleglosci
+    
+    let positionX = ev.x-marginRadius;
+    let positionY = ev.y-marginRadius;
+
+    console.log(ev, positionX + marginRadius, window.innerWidth);
+
+    if(positionX < 0)
+        positionX = 0;
+    else if(positionX + width > window.innerWidth)
+        positionX = window.innerWidth - width;
+    
+    if(positionY < 0)
+        positionY = 0;
+    else if(positionY + height > window.innerHeight)
+        positionY = window.innerHeight - width;
+    
     if(open){
         closeFn();
         open = false;
     }
     else {
+        draw.style({ transform: `translate3d(${positionX}px, ${positionY}px, 0)` });
         openFn();
         open = true;
+        document.addEventListener('click', onClick);
     }
 });
 
 draw = SVG('drawing');
-draw.size(width, height).viewbox(0,0,width, height)//.style('transform', 'rotate(-0.25turn)');
+
+draw
+    .size(width, height)
+    .viewbox(0,0,width, height)
+    .addClass('circle-menu');
 
 let cumulativeRadian = 0;
 let cumulativeDeg = 0;
@@ -98,12 +129,12 @@ let cumulativeDeg = 0;
 for(let i = 0; i < slices; ++i){
     const group = draw.group().rotate(circleDegOrigin, marginRadius, marginRadius);
 
-    const [startX, startY] = getCoordinatesForPercent(marginRadius, radius, cumulativeRadian);
+    const [startX, startY] = getCoordinatesForRads(marginRadius, radius, cumulativeRadian);
     
     cumulativeRadian += radForStep;
     cumulativeDeg += degForStep;
     
-    const [endX, endY] = getCoordinatesForPercent(marginRadius, radius, cumulativeRadian);
+    const [endX, endY] = getCoordinatesForRads(marginRadius, radius, cumulativeRadian);
     
     const pathData = [
         `M ${startX} ${startY}`, // Move
@@ -117,7 +148,7 @@ for(let i = 0; i < slices; ++i){
     
     const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
 
-    const [textX, textY] = getCoordinatesForPercent(
+    const [textX, textY] = getCoordinatesForRads(
         marginRadius, 
         innerCircleRadius + ((radius-innerCircleRadius)/3) + iconDistanceFromInnerCircle,
         cumulativeRadian-(radForStep/2)
@@ -132,13 +163,7 @@ for(let i = 0; i < slices; ++i){
     fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${iconSize}px; height: ${iconSize}px;"><i style="font-size: ${iconSize}px; color: white" class="fa fa-home"></i></div>`;
     
     group.node.appendChild(fo);
-
-    // group.circle(50).fill('#fff').move(textX-25, textY-25);
-    group.circle(2).fill('white').move(textX, textY);
-
-    // t.translate(textX, textY).rotate(Math.abs(circleDegOrigin));
-    //todo wystepuje dziwne przesuniecie
-    // console.log(t)
+    group.addClass('circle-slice');
     
     slicesArray.push({
         i,
@@ -146,27 +171,6 @@ for(let i = 0; i < slices; ++i){
         group,
         cumulativeRadian
     });
-}
-
-class Segment {
-    constructor(data){
-        this.hidden       = true;
-        this.segmentDeg   = null;
-        this.segmentRad   = null;
-        this.svgReference = null;
-        this.number       = null;
-        this.color        = null;
-        this.content      = null;
-        this.coords       = null;
-    }
-    
-    hide(){
-        
-    }
-    
-    show(){
-        
-    }
 }
 
 innerCircle = draw.circle(innerCircleDiameter)

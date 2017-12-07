@@ -1,4 +1,12 @@
 import SVG from 'svg.js';
+import {
+    degToRad,
+    percentsToDeg,
+    sliceToDeg,
+    generatePart,
+    generateColor,
+    getCoordinatesForPercent
+} from  './utils';
 
 const SEGMENT_DEFAULTS = {
     iconSize: 50,
@@ -17,38 +25,28 @@ const MENU_DEFAULTS = {
 };
 
 class InnerCircle {
-    constructor(segments, options){
-        const {
-            width,
-            height,
-            padding,
-            id
-        } = Object.assign({}, MENU_DEFAULTS, options);
-        
-        this.mathData = {
-            width,
-            height,
-            padding,
-            radius: (width/2)-(padding/2),
-            radiusWithPadding: (width/2),
-            circleDegOrigin: -90
-        }
-        
-        this.__svg = SVG(id)
-            .size(width, height)
-            .viewbox(0,0,width, height);
-
-    }
-}
-
-export class CircleMenu {
     constructor(options){
         
     }
 }
 
-class CircleMenuSegment {
-    constructor(params, options){
+export class CircleMenu {
+    constructor(slices, options){
+        this.options = Object.assign({}, MENU_DEFAULTS, options);
+        this.svg = SVG('drawing');
+        
+
+        this.createSlices();
+    }
+    
+    createSlices(){
+        this.slices = slices.map( slice => new Slice(slice))
+    }
+}
+
+class Slice {
+    //todo slice powinno tworzyc samego siebie, bez dostawania z gory instancji svg
+    constructor(options){
         
     }
 }
