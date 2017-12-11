@@ -9,7 +9,7 @@ import {
 import {
     MENU_DEFAULTS,
     STYLES
-} from './defaults';
+} from '../config/defaults';
 
 class Menu {
     constructor(selector, slices, options){

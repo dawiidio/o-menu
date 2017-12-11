@@ -5,8 +5,8 @@ import './style.scss';
 import {
     generateColor
 } from './utils/utils';
-import contextMenuBehavior from './parts/contextMenuBehavior';
-import CircleMenu from './parts/Menu';
+import contextMenuBehavior from './utils/contextMenuBehavior';
+import CircleMenu from './parts/CircleMenu';
 
 const menu = new CircleMenu('drawing', [
     {

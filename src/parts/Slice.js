@@ -5,7 +5,7 @@ import {
 
 import {
     SLICE_DEFAULTS
-} from './defaults';
+} from '../config/defaults';
 
 class Slice {
     constructor(svg, data, options){
