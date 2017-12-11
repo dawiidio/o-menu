@@ -36,7 +36,6 @@ class Slice {
         this.startArcRad    = this.data.radForStep * this.data.number;
         this.endArcRad      = this.data.radForStep + this.startArcRad;
         
-        console.log(this);
         this.coords.arcStart = getCoordinatesForRads(
             this.data.radiusWithPadding,
             this.data.radius,
