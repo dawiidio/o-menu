@@ -1,29 +1,23 @@
+import SVG from 'svg.js';
+import Slice from './Slice';
+
 import {
     degToRad,
-    generateColor,
-    generatePart,
-    percentsToDeg,
-    getCoordinatesForRads,
     sliceToDeg
 } from '../utils/utils';
-import {SliceAnimation} from './Animation';
-import SVG from 'svg.js';
 
-
-const MENU_DEFAULTS = {
-    size    : 300,
-    padding : 10,
-    elClass : 'circle-menu',
-    circleDegOrigin: -90,
-    innerCircleRadius: 45,
-    innerCircleBackgroundColor: '#fff',
-};
+import {
+    MENU_DEFAULTS,
+    STYLES
+} from './defaults';
 
 class Menu {
     constructor(selector, slices, options){
         this.options = {...MENU_DEFAULTS, ...options};
         this.svg     = SVG(selector);
         this.slices  = [];
+        
+        this.svg.style(STYLES.hidden);
         
         const {
             size, 
@@ -61,7 +55,7 @@ class Menu {
                 innerCircleRadius : this.options.innerCircleRadius
             };
             
-            return new SliceAnimation(this.svg, data, sliceOptions)
+            return new Slice(this.svg, data, sliceOptions)
         });
     }
 
@@ -70,6 +64,27 @@ class Menu {
             .move(this.radiusWithPadding - (this.innerCircleDiameter/2), this.radiusWithPadding-(this.innerCircleDiameter/2))
             .fill(this.options.innerCircleBackgroundColor)
             .attr('id', 'inner-circle');
+    }
+
+    // todo extract these two to ... decorator pattern?
+    show(time = this.options.menuShowTime, sliceTime){
+        this.svg.style(STYLES.visible);
+
+        this.innerCircle.animate(time).scale(1, this.radiusWithPadding, this.radiusWithPadding).after(() => {
+            this.slices.forEach(slice => {
+                slice.show(sliceTime);
+            });
+        });
+    }
+
+    hide(time = this.options.menuHideTime, sliceTime){
+        const promisesArr = this.slices.map(slice => slice.hide(sliceTime));
+
+        Promise.all(promisesArr).then(() => {
+            this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
+                this.svg.style(STYLES.hidden)
+            });
+        });
     }
 }
 

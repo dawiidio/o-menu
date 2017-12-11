@@ -3,17 +3,9 @@ import {
     createElementNS
 } from '../utils/utils';
 
-const SLICE_DEFAULTS = {
-    contentSize : 38,
-    contentMoveX: 0,
-    contentMoveY: 0,
-    iconDistanceFromInnerCircle: 0,
-    backgroundColor: null,
-    contentColor: null,
-    contentFontSize: null,
-    contentHTML: null,
-    sliceClass : 'circle-slice'
-};
+import {
+    SLICE_DEFAULTS
+} from './defaults';
 
 class Slice {
     constructor(svg, data, options){
@@ -93,6 +85,31 @@ class Slice {
         contentElement.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${this.options.contentSize}px; height: ${this.options.contentSize}px; color:${this.options.contentColor}; font-size:${this.options.contentFontSize}px;">${this.options.contentHTML}</div>`;
 
         this.group.node.appendChild(contentElement);
+    }
+
+    // todo extract these two to ... decorator pattern?
+    show(time = this.options.sliceShowTime){
+        return new Promise((resolve) => {
+            this.group.animate(time).scale(1, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() => {
+                this.group
+                    .animate(time)
+                    .rotate(this.data.circleDegOrigin, this.data.radiusWithPadding, this.data.radiusWithPadding)
+                    .after(resolve);
+            })
+        });
+    }
+
+    hide(time = this.options.sliceHideTime){
+        const rotateStepDeg = -((this.number * this.data.degForStep)+(this.data.degForStep/2))+this.data.circleDegOrigin;
+
+        return new Promise((resolve) => {
+            this.group.animate(time).rotate(rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() =>{
+                this.group
+                    .animate(time)
+                    .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding)
+                    .after(resolve)
+            })
+        });
     }
 }
 
