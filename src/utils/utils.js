@@ -28,3 +28,5 @@ export const createElementNS = (elementName, attrs = {}) => {
     
     return el;
 };
+
+export const deepCopy = object => JSON.parse(JSON.stringify(object));

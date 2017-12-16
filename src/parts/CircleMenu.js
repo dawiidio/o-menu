@@ -7,8 +7,7 @@ import {
 } from '../utils/utils';
 
 import {
-    MENU_DEFAULTS,
-    STYLES
+    MENU_DEFAULTS
 } from '../config/defaults';
 
 class Menu {
@@ -17,33 +16,40 @@ class Menu {
         this.svg     = SVG(selector);
         this.slices  = [];
         
-        this.svg.style(STYLES.hidden);
-        
         const {
             size, 
             padding,
             innerCircleRadius
         } = this.options;
         
-        const slicesLength    = slices.length;
-        
-        this.degForStep          = sliceToDeg(slicesLength);
-        this.radForStep          = degToRad(this.degForStep);
         this.radius              = (size/2)-(padding/2);
         this.radiusWithPadding   = (size/2);
         this.innerCircleDiameter = (innerCircleRadius*2)-padding;
-        
+        this.degForStep          = 0;
+        this.radForStep          = 0;
         
         this.svg
             .size(size, size)
             .viewbox(0,0,size, size)
-            .addClass(this.options.elClass);
+            .addClass(this.options.elClass)
+            .style(this.options.styles.hidden);
         
-        this.createSlices(slices);
-        this.createInnerCircle();
+        this.createSlices(slices)
+            .createInnerCircle();
+
     }
     
     createSlices(slices){
+        if(this.slices.length) {
+            this.slices.forEach(slice => slice.destroy());
+            this.slices = [];
+        }
+        
+        const slicesLength    = slices.length;
+
+        this.degForStep          = sliceToDeg(slicesLength);
+        this.radForStep          = degToRad(this.degForStep);
+        
         this.slices = slices.map((sliceOptions, i) => {
             const data = {
                 radius            : this.radius,
@@ -57,22 +63,41 @@ class Menu {
             
             return new Slice(this.svg, data, sliceOptions)
         });
+        
+        return this;
     }
 
     createInnerCircle(){
+        if(this.innerCircle)
+            this.innerCircle.remove();
+        
         this.innerCircle = this.svg.circle(this.innerCircleDiameter)
             .move(this.radiusWithPadding - (this.innerCircleDiameter/2), this.radiusWithPadding-(this.innerCircleDiameter/2))
             .fill(this.options.innerCircleBackgroundColor)
-            .attr('id', 'inner-circle');
+            .attr('id', 'inner-circle')
+            .scale(0.01, this.radiusWithPadding, this.radiusWithPadding);
+        
+        return this;
+    }
+    
+    destroy(){
+        this.svg = null;
+        
+        this.svg.remove();
+        
+        this.slices.forEach(slice => slice.destroy());
+        this.slices = null;
     }
 
     // todo extract these two to ... decorator pattern?
     show(time = this.options.menuShowTime, sliceTime){
-        this.svg.style(STYLES.visible);
+        this.svg.style(this.options.styles.visible);
 
-        this.innerCircle.animate(time).scale(1, this.radiusWithPadding, this.radiusWithPadding).after(() => {
-            this.slices.forEach(slice => {
-                slice.show(sliceTime);
+        return new Promise(resolve => {
+            this.innerCircle.animate(time).scale(1, this.radiusWithPadding, this.radiusWithPadding).after(() => {
+                let promisesArr =  this.slices.map(slice => slice.show(sliceTime));
+                
+                Promise.all(promisesArr).then(resolve);
             });
         });
     }
@@ -80,9 +105,9 @@ class Menu {
     hide(time = this.options.menuHideTime, sliceTime){
         const promisesArr = this.slices.map(slice => slice.hide(sliceTime));
 
-        Promise.all(promisesArr).then(() => {
+        return Promise.all(promisesArr).then(() => {
             this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
-                this.svg.style(STYLES.hidden)
+                this.svg.style(this.options.styles.hidden)
             });
         });
     }

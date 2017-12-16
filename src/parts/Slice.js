@@ -19,17 +19,18 @@ class Slice {
             content : []
         };
         this.pathArray = [];
-        
+        this.rotateStepDeg = -((this.number * this.data.degForStep)+(this.data.degForStep/2))+this.data.circleDegOrigin;
+
         this.group
             .rotate(
                 data.circleDegOrigin, 
                 data.radiusWithPadding, 
                 data.radiusWithPadding
             )
-            .addClass(this.options.sliceClass)
-        
+            .addClass(this.options.sliceClass);
+
         this.drawSlice();
-        this.drawContent();
+        this.bindCallbacks();
     }
     
     drawSlice(){
@@ -59,7 +60,14 @@ class Slice {
 
         this.group
             .path(this.pathArray.join(' '))
-            .fill(this.options.backgroundColor);
+            .fill(this.options.backgroundColor)
+            .style(this.options.styles.defaults)
+
+        this.drawContent();
+        
+        this.group
+            .rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding)
+            .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding);
     }
     
     drawContent(){
@@ -81,9 +89,25 @@ class Slice {
         
         const contentElement = createElementNS('foreignObject', attrs);
 
-        contentElement.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${this.options.contentSize}px; height: ${this.options.contentSize}px; color:${this.options.contentColor}; font-size:${this.options.contentFontSize}px;">${this.options.contentHTML}</div>`;
-
+        contentElement.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${this.options.contentSize}px; height: ${this.options.contentSize}px; color:${this.options.contentColor}; font-size:${this.options.contentFontSize}px; cursor: pointer;">${this.options.contentHTML}</div>`;
+        
         this.group.node.appendChild(contentElement);
+    }
+    
+    bindCallbacks(){
+        if(this.options.onClick)
+            this.group.on('click', this.options.onClick);
+        
+        this.group.on('hover', () => {
+            this.group.style(this.options.styles.hover);
+        });
+    }
+    
+    destroy(){
+        this.group.off('hover');
+        this.group.off('click');
+        this.group.remove();
+        this.group = null;
     }
 
     // todo extract these two to ... decorator pattern?
@@ -99,10 +123,8 @@ class Slice {
     }
 
     hide(time = this.options.sliceHideTime){
-        const rotateStepDeg = -((this.number * this.data.degForStep)+(this.data.degForStep/2))+this.data.circleDegOrigin;
-
         return new Promise((resolve) => {
-            this.group.animate(time).rotate(rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() =>{
+            this.group.animate(time).rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() =>{
                 this.group
                     .animate(time)
                     .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding)

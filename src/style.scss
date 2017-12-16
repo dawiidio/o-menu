@@ -1,19 +1,9 @@
+body{
+  padding: 0;
+  margin: 0;
+}
+
 #drawing{
   background-color: #ececec;
   min-height: 200vh;
-}
-
-.hidden-animation-end{
-  visibility: hidden;
-  z-index: -1;
-}
-
-.circle-menu{
-  position: fixed;
-}
-
-.circle-slice{
-  &:hover{
-    //transform: scale(1.1);
-  }
 }

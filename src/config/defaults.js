@@ -1,14 +1,3 @@
-export const STYLES = {
-    hidden : {
-        zIndex: -1,
-        visibility: 'hidden'
-    },
-    visible: {
-        zIndex: 9999,
-        visibility: 'visible'
-    }
-};
-
 export const MENU_DEFAULTS = {
     size    : 300,
     padding : 10,
@@ -17,7 +6,17 @@ export const MENU_DEFAULTS = {
     innerCircleRadius: 45,
     innerCircleBackgroundColor: '#fff',
     menuShowTime: 100,
-    menuHideTime: 100
+    menuHideTime: 100,
+    styles : {
+        hidden : {
+            zIndex: -1,
+            visibility: 'hidden'
+        },
+        visible: {
+            zIndex: 9999,
+            visibility: 'visible'
+        }
+    }
 };
 
 export const SLICE_DEFAULTS = {
@@ -31,5 +30,13 @@ export const SLICE_DEFAULTS = {
     contentHTML: null,
     sliceClass : 'circle-slice',
     sliceShowTime: 100,
-    sliceHideTime: 100
+    sliceHideTime: 100,
+    styles: {
+        defaults: {
+            cursor: 'pointer'
+        },
+        hover: {
+
+        }
+    }
 };
