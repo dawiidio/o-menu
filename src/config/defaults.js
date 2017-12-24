@@ -8,6 +8,10 @@ export const MENU_DEFAULTS = {
     menuShowTime: 100,
     menuHideTime: 100,
     styles : {
+        innerCircle: {
+            strokeColor: '',
+            strokeWidth: ''
+        },
         hidden : {
             zIndex: -1,
             visibility: 'hidden'
@@ -15,6 +19,9 @@ export const MENU_DEFAULTS = {
         visible: {
             zIndex: 9999,
             visibility: 'visible'
+        },
+        defaults: {
+            position: 'fixed'
         }
     }
 };
@@ -31,12 +38,15 @@ export const SLICE_DEFAULTS = {
     sliceClass : 'circle-slice',
     sliceShowTime: 100,
     sliceHideTime: 100,
+    slices: [],
     styles: {
         defaults: {
-            cursor: 'pointer'
+            cursor: 'pointer',
+            strokeColor: '',
+            strokeWidth: '' // todo strokes
         },
         hover: {
-
+            
         }
     }
 };

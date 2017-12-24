@@ -1,18 +1,22 @@
 import SVG from 'svg.js';
-import Slice from './Slice';
+// import Slice from './FirstLevelSlice';
+import PartInterface from './PartInterface';
 
 import {
     degToRad,
-    sliceToDeg
+    sliceToDeg,
+    hasNestedSlices
 } from '../utils/utils';
 
-import {
-    MENU_DEFAULTS
-} from '../config/defaults';
-
-class Menu {
-    constructor(selector, slices, options){
-        this.options = {...MENU_DEFAULTS, ...options};
+class Menu extends PartInterface {
+    /**
+     * 
+     * @param selector {string} css id for parent element where menu should be triggered
+     * @param options {Object} Options for menu
+     */
+    constructor(selector, options){
+        super();
+        this.options = options;
         this.svg     = SVG(selector);
         this.slices  = [];
         
@@ -27,31 +31,31 @@ class Menu {
         this.innerCircleDiameter = (innerCircleRadius*2)-padding;
         this.degForStep          = 0;
         this.radForStep          = 0;
+        this.hasNestedSlices     = null;
         
         this.svg
             .size(size, size)
             .viewbox(0,0,size, size)
             .addClass(this.options.elClass)
-            .style(this.options.styles.hidden);
+            .style(this.options.styles.hidden)
+            .style(this.options.styles.defaults);
         
-        this.createSlices(slices)
-            .createInnerCircle();
-
+        // this.draw(slices)
+        //     .createInnerCircle();
     }
-    
-    createSlices(slices){
-        if(this.slices.length) {
-            this.slices.forEach(slice => slice.destroy());
-            this.slices = [];
-        }
-        
-        const slicesLength    = slices.length;
 
-        this.degForStep          = sliceToDeg(slicesLength);
+    /**
+     * Map config array to Slice class instances
+     * 
+     * @returns {Menu}
+     */
+    draw(){
+        this.hasNestedSlices     = hasNestedSlices(this.slices);                
+        this.degForStep          = sliceToDeg(this.slices.length);
         this.radForStep          = degToRad(this.degForStep);
         
-        this.slices = slices.map((sliceOptions, i) => {
-            const data = {
+        this.slices.forEach((slice, i) => {
+            slice.draw({
                 radius            : this.radius,
                 radiusWithPadding : this.radiusWithPadding,
                 number            : i,
@@ -59,14 +63,19 @@ class Menu {
                 radForStep        : this.radForStep,
                 circleDegOrigin   : this.options.circleDegOrigin,
                 innerCircleRadius : this.options.innerCircleRadius
-            };
-            
-            return new Slice(this.svg, data, sliceOptions)
+            });
         });
+
+        this.createInnerCircle();
         
         return this;
     }
 
+    /**
+     * Create inner circle, where we can put some additional content
+     * 
+     * @returns {Menu}
+     */
     createInnerCircle(){
         if(this.innerCircle)
             this.innerCircle.remove();
@@ -79,17 +88,26 @@ class Menu {
         
         return this;
     }
-    
+
+    /**
+     * Destroys instance
+     */
     destroy(){
-        this.svg = null;
-        
         this.svg.remove();
-        
+        this.svg = null;
+
         this.slices.forEach(slice => slice.destroy());
-        this.slices = null;
+        this.slices = [];
     }
 
     // todo extract these two to ... decorator pattern?
+    /**
+     * Show menu and triggers show on linked Slices
+     * 
+     * @param time {number} Time for innerCircle
+     * @param sliceTime {number} Time for slices
+     * @returns {Promise}
+     */
     show(time = this.options.menuShowTime, sliceTime){
         this.svg.style(this.options.styles.visible);
 
@@ -102,14 +120,25 @@ class Menu {
         });
     }
 
+    /**
+     * Hide menu and triggers hide on linked Slices
+     *
+     * @param time {number} Time for innerCircle
+     * @param sliceTime {number} Time for slices
+     * @returns {Promise}
+     */
     hide(time = this.options.menuHideTime, sliceTime){
         const promisesArr = this.slices.map(slice => slice.hide(sliceTime));
 
-        return Promise.all(promisesArr).then(() => {
-            this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
-                this.svg.style(this.options.styles.hidden)
+        return new Promise((resolve) => {
+            Promise.all(promisesArr).then(() => {
+                this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
+                    this.svg.style(this.options.styles.hidden);
+                    resolve();
+                });
             });
         });
+        
     }
 }
 

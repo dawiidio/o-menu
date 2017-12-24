@@ -1,39 +1,53 @@
 import {
+    degToRad,
+    radToDeg,
+    sliceToDeg,
     getCoordinatesForRads,
     createElementNS
 } from '../utils/utils';
+import PartInterface from './PartInterface';
 
-import {
-    SLICE_DEFAULTS
-} from '../config/defaults';
-
-class Slice {
-    constructor(svg, data, options){
-        this.options    = {...SLICE_DEFAULTS, ...options};
-        this.data       = data;
+class Slice extends PartInterface {
+    /**
+     * 
+     * @param svg {Object} SVG.js element
+     * @param options {Object} Options for Slice
+     */
+    constructor(svg, options){
+        super();
+        this.options    = options;
+        this.data       = {};
         this.group      = svg.group();
-        this.number     = this.data.number;
+        this.number     = null;
         this.coords     = {
             arcStart: [],
             arcEnd  : [],
             content : []
         };
         this.pathArray = [];
-        this.rotateStepDeg = -((this.number * this.data.degForStep)+(this.data.degForStep/2))+this.data.circleDegOrigin;
+        this.rotateStepDeg = 0;
+        this.slices = [];
 
+        this.bindCallbacks();
+    }
+
+    /**
+     * Plot slice
+     */
+    draw(data){
+        this.data           = data;
+        this.number         = this.data.number;
+        
         this.group
             .rotate(
-                data.circleDegOrigin, 
-                data.radiusWithPadding, 
-                data.radiusWithPadding
+                this.data.circleDegOrigin, 
+                this.data.radiusWithPadding, 
+                this.data.radiusWithPadding
             )
             .addClass(this.options.sliceClass);
 
-        this.drawSlice();
-        this.bindCallbacks();
-    }
-    
-    drawSlice(){
+        this.rotateStepDeg = -((this.number * this.data.degForStep)+(this.data.degForStep/2))+this.data.circleDegOrigin;
+
         this.startArcRad    = this.data.radForStep * this.data.number;
         this.endArcRad      = this.data.radForStep + this.startArcRad;
         
@@ -58,18 +72,36 @@ class Slice {
             `L ${this.data.radiusWithPadding} ${this.data.radiusWithPadding}` // Line
         ];
 
+        if(this.slices.length){
+            const degForStep = this.data.degForStep / this.options.slices.length;
+
+            this.slices.forEach((slice, i) => {
+                slice.draw({
+                    ...this.data,
+                    number: i,
+                    radForStep: degToRad(degForStep),
+                    degForStep
+                });
+            })
+        }
+
         this.group
             .path(this.pathArray.join(' '))
             .fill(this.options.backgroundColor)
             .style(this.options.styles.defaults)
 
         this.drawContent();
-        
+
         this.group
             .rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding)
             .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding);
+
+        return this;
     }
-    
+
+    /**
+     * Render content (eg. icon in Slice)
+     */
     drawContent(){
          this.coords.content = getCoordinatesForRads(
              this.data.radiusWithPadding,
@@ -93,7 +125,10 @@ class Slice {
         
         this.group.node.appendChild(contentElement);
     }
-    
+
+    /**
+     * Adds callbacks for events
+     */
     bindCallbacks(){
         if(this.options.onClick)
             this.group.on('click', this.options.onClick);
@@ -102,7 +137,10 @@ class Slice {
             this.group.style(this.options.styles.hover);
         });
     }
-    
+
+    /**
+     * Destroying class instance
+     */
     destroy(){
         this.group.off('hover');
         this.group.off('click');
@@ -123,13 +161,20 @@ class Slice {
     }
 
     hide(time = this.options.sliceHideTime){
-        return new Promise((resolve) => {
-            this.group.animate(time).rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() =>{
-                this.group
-                    .animate(time)
-                    .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding)
-                    .after(resolve)
-            })
+        let promises = [Promise.resolve()];
+
+        // if(this.slices.length)
+            // this.slices.map(slice => slice.hide());
+
+        return Promise.all(promises).then(() => {
+            return new Promise((resolve) => {
+                this.group.animate(time).rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() =>{
+                    this.group
+                        .animate(time)
+                        .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding)
+                        .after(resolve)
+                })
+            });
         });
     }
 }
