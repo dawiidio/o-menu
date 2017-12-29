@@ -17,7 +17,7 @@ const onOpenCb = () => {
                 backgroundColor: generateColor(),
                 contentColor: '#fff',
                 contentFontSize: 38,
-                contentHTML: '<i class="fa fa-home"></i>',
+                contentHTML: '<strong>1</strong>',
                 sliceClass : 'circle-slice',
                 slices: [
                     {

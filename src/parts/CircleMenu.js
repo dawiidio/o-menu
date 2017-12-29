@@ -144,13 +144,17 @@ class Menu extends PartInterface {
      * @returns {Promise}
      */
     hide(time = this.options.menuHideTime, sliceTime){
-        const promisesArr = this.slices.map(slice => slice.hide(sliceTime));
+        const childrenPromisesArr = this.slices.map(slice => slice.hideChildrens(sliceTime));
 
         return new Promise((resolve) => {
-            Promise.all(promisesArr).then(() => {
-                this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
-                    this.svg.style(this.options.styles.hidden);
-                    resolve();
+            Promise.all(childrenPromisesArr).then(() => {
+                const promisesArr = this.slices.map(slice => slice.hide(sliceTime));
+
+                Promise.all(promisesArr).then(() => {
+                    this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
+                        this.svg.style(this.options.styles.hidden);
+                        resolve();
+                    });
                 });
             });
         });

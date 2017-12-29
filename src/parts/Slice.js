@@ -185,21 +185,23 @@ class Slice extends PartInterface {
         });
     }
 
-    hide(time = this.options.sliceHideTime){
-        let promises = [Promise.resolve()];
-        
+    hideChildrens(time = this.options.sliceHideTime){
         if(this.slices.length)
-            promises = this.slices.map(slice => slice.hide());
+            return this.slices.map(slice => slice.hide());
 
-        return Promise.all(promises).then(() => {
-            return new Promise((resolve) => {
-                this.group.animate(time).rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding).after(() =>{
+        return [Promise.resolve()];
+    }
+
+    hide(time = this.options.sliceHideTime){
+        return new Promise((resolve) => {
+            this.group
+                .animate(time).rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding)
+                .after(() =>{
                     this.group
                         .animate(time)
                         .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding)
-                        .after(resolve)
+                        .after(resolve);
                 })
-            });
         });
     }
 }
