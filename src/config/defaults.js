@@ -1,9 +1,10 @@
 export const MENU_DEFAULTS = {
-    size    : 300,
     padding : 10,
     elClass : 'circle-menu',
     circleDegOrigin: -90,
-    innerCircleRadius: 45,
+    innerCircleWidth: 45,
+    firstLevelSliceWidth: 70,
+    nthLevelSliceWidth: 50,
     innerCircleBackgroundColor: '#fff',
     menuShowTime: 100,
     menuHideTime: 100,

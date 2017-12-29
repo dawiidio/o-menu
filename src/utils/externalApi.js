@@ -20,7 +20,6 @@ const OPTIONS_DEFAULTS = {
 // todo save as module
 // todo ng5 module
 
-
 /**
  * Simple factory function for Menu
  * 
@@ -69,8 +68,11 @@ export default (selector, userOptions) => {
     /**
      * close menu
      */
-    const close = () => {
-        menuInstance.hide().then(() => menuInstance.destroy());
+    const close = ev => {
+        menuInstance
+            .hide()
+            .then(() => menuInstance.destroy());
+
         document.removeEventListener('click', close);
         isOpen = false;
     };
@@ -87,7 +89,7 @@ export default (selector, userOptions) => {
         let positionX = ev.x-menuInstance.radiusWithPadding;
         let positionY = ev.y-menuInstance.radiusWithPadding;
 
-        const size = menuInstance.options.size;
+        const size = menuInstance.size;
 
         if(positionX < 0)
             positionX = 0;
@@ -115,7 +117,7 @@ export default (selector, userOptions) => {
         ev.preventDefault();
 
         if(isOpen)
-            close();
+            close(ev);
         else
             open(ev);
     };

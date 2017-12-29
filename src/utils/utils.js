@@ -6,6 +6,14 @@
 export const degToRad      = deg => deg * (Math.PI/180);
 
 /**
+ * convert degrees to radians
+ * 
+ * @param deg {number}
+ */
+export const radToDeg      = rad => (rad *180) / Math.PI;
+
+
+/**
  * convert percents to degrees
  * 
  * @param percents {number}
@@ -98,4 +106,4 @@ export const dumpExtend = (a, b = {}, c = {}) => {
  * @param {array} slicesArr
  * @returns {bool} 
  */
-export const hasNestedSlices = slicesArr => slicesArr.reduce((a, b) => !!(b.slices && b.slices.length), false);
+export const hasNestedSlices = slicesArr => slicesArr.reduce((a, b) => a || !!(b.slices && b.slices.length), false);

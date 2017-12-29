@@ -21,27 +21,31 @@ class Menu extends PartInterface {
         this.slices  = [];
         
         const {
-            size, 
             padding,
-            innerCircleRadius
+            innerCircleWidth,
+            firstLevelSliceWidth,
+            nthLevelSliceWidth
         } = this.options;
         
-        this.radius              = (size/2)-(padding/2);
-        this.radiusWithPadding   = (size/2);
-        this.innerCircleDiameter = (innerCircleRadius*2)-padding;
+        this.size                = (
+            innerCircleWidth * 2
+            + firstLevelSliceWidth * 2
+            + nthLevelSliceWidth * 2
+            + padding * 2
+        ); 
+        this.radius              = (this.size/2)-(padding/2);
+        this.radiusWithPadding   = (this.size/2);
+        this.innerCircleDiameter = (innerCircleWidth*2)-padding;
         this.degForStep          = 0;
         this.radForStep          = 0;
         this.hasNestedSlices     = null;
         
         this.svg
-            .size(size, size)
-            .viewbox(0,0,size, size)
+            .size(this.size, this.size)
+            .viewbox(0,0,this.size, this.size)
             .addClass(this.options.elClass)
             .style(this.options.styles.hidden)
             .style(this.options.styles.defaults);
-        
-        // this.draw(slices)
-        //     .createInnerCircle();
     }
 
     /**
@@ -53,16 +57,28 @@ class Menu extends PartInterface {
         this.hasNestedSlices     = hasNestedSlices(this.slices);                
         this.degForStep          = sliceToDeg(this.slices.length);
         this.radForStep          = degToRad(this.degForStep);
-        
+
+        if(!this.hasNestedSlices){
+            this.size = this.size - this.options.nthLevelSliceWidth * 2;
+
+            this.radius              = (this.size/2)-(this.options.padding/2);
+            this.radiusWithPadding   = (this.size/2);
+
+            this.svg
+                .size(this.size, this.size)
+                .viewbox(0,0,this.size, this.size);
+        }
+
         this.slices.forEach((slice, i) => {
             slice.draw({
-                radius            : this.radius,
+                radius            : this.options.innerCircleWidth + this.options.firstLevelSliceWidth,
                 radiusWithPadding : this.radiusWithPadding,
                 number            : i,
                 degForStep        : this.degForStep,
                 radForStep        : this.radForStep,
                 circleDegOrigin   : this.options.circleDegOrigin,
-                innerCircleRadius : this.options.innerCircleRadius
+                innerCircleRadius : this.options.innerCircleWidth,
+                nthLevelSliceWidth: this.options.nthLevelSliceWidth
             });
         });
 

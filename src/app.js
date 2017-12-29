@@ -31,17 +31,17 @@ const onOpenCb = () => {
                         contentHTML: '<i class="fa fa-home"></i>',
                         sliceClass : 'circle-slice',
                     },
-                    {
-                        contentSize : 38,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 38,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
-                    }
+                    // {
+                    //     contentSize : 38,
+                    //     contentMoveX: 0,
+                    //     contentMoveY: 0,
+                    //     iconDistanceFromInnerCircle: 0,
+                    //     backgroundColor: generateColor(),
+                    //     contentColor: '#fff',
+                    //     contentFontSize: 38,
+                    //     contentHTML: '<i class="fa fa-home"></i>',
+                    //     sliceClass : 'circle-slice',
+                    // }
                 ]
             },
             {
@@ -75,7 +75,31 @@ const onOpenCb = () => {
                 contentColor: '#fff',
                 contentFontSize: 38,
                 contentHTML: '<i class="fa fa-home"></i>',
-                sliceClass : 'circle-slice'
+                sliceClass : 'circle-slice',
+                slices: [
+                    {
+                        contentSize : 38,
+                        contentMoveX: 0,
+                        contentMoveY: 0,
+                        iconDistanceFromInnerCircle: 0,
+                        backgroundColor: generateColor(),
+                        contentColor: '#fff',
+                        contentFontSize: 38,
+                        contentHTML: '<i class="fa fa-home"></i>',
+                        sliceClass : 'circle-slice',
+                    },
+                    {
+                        contentSize : 38,
+                        contentMoveX: 0,
+                        contentMoveY: 0,
+                        iconDistanceFromInnerCircle: 0,
+                        backgroundColor: generateColor(),
+                        contentColor: '#fff',
+                        contentFontSize: 38,
+                        contentHTML: '<i class="fa fa-home"></i>',
+                        sliceClass : 'circle-slice',
+                    }
+                ]
             },
             {
                 contentSize : 38,
@@ -89,7 +113,53 @@ const onOpenCb = () => {
                 sliceClass : 'circle-slice',
                 onClick: () => {
                     console.log(123);
-                }
+                },
+                slices: [
+                    {
+                        contentSize : 30,
+                        contentMoveX: 0,
+                        contentMoveY: 0,
+                        iconDistanceFromInnerCircle: 0,
+                        backgroundColor: generateColor(),
+                        contentColor: '#fff',
+                        contentFontSize: 30,
+                        contentHTML: '<i class="fa fa-home"></i>',
+                        sliceClass : 'circle-slice',
+                    },
+                    {
+                        contentSize : 38,
+                        contentMoveX: 0,
+                        contentMoveY: 0,
+                        iconDistanceFromInnerCircle: 0,
+                        backgroundColor: generateColor(),
+                        contentColor: '#fff',
+                        contentFontSize: 38,
+                        contentHTML: '<i class="fa fa-home"></i>',
+                        sliceClass : 'circle-slice',
+                    },
+                    {
+                        contentSize : 38,
+                        contentMoveX: 0,
+                        contentMoveY: 0,
+                        iconDistanceFromInnerCircle: 0,
+                        backgroundColor: generateColor(),
+                        contentColor: '#fff',
+                        contentFontSize: 38,
+                        contentHTML: '<i class="fa fa-home"></i>',
+                        sliceClass : 'circle-slice',
+                    },
+                    // {
+                    //     contentSize : 38,
+                    //     contentMoveX: 0,
+                    //     contentMoveY: 0,
+                    //     iconDistanceFromInnerCircle: 0,
+                    //     backgroundColor: generateColor(),
+                    //     contentColor: '#fff',
+                    //     contentFontSize: 38,
+                    //     contentHTML: '<i class="fa fa-home"></i>',
+                    //     sliceClass : 'circle-slice',
+                    // }
+                ]
             },
             {
                 contentSize : 38,

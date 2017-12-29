@@ -15,20 +15,20 @@ class Slice extends PartInterface {
      */
     constructor(svg, options){
         super();
-        this.options    = options;
-        this.data       = {};
-        this.group      = svg.group();
-        this.number     = null;
-        this.coords     = {
+        this.options        = options;
+        this.parent         = svg;
+        this.data           = {};
+        this.group          = null;
+        this.number         = null;
+        this.coords         = {
             arcStart: [],
             arcEnd  : [],
             content : []
         };
-        this.pathArray = [];
-        this.rotateStepDeg = 0;
-        this.slices = [];
-
-        this.bindCallbacks();
+        this.pathArray      = [];
+        this.rotateStepDeg  = 0;
+        this.slices         = [];
+        this.isSlicesOpen   = false;
     }
 
     /**
@@ -38,28 +38,22 @@ class Slice extends PartInterface {
         this.data           = data;
         this.number         = this.data.number;
         
-        this.group
-            .rotate(
-                this.data.circleDegOrigin, 
-                this.data.radiusWithPadding, 
-                this.data.radiusWithPadding
-            )
-            .addClass(this.options.sliceClass);
+        const radius        = this.data.radius;
 
-        this.rotateStepDeg = -((this.number * this.data.degForStep)+(this.data.degForStep/2))+this.data.circleDegOrigin;
+        this.rotateStepDeg  = -((this.number * this.data.degForStep))+this.data.circleDegOrigin+(this.data.parentDeg||0);
 
         this.startArcRad    = this.data.radForStep * this.data.number;
         this.endArcRad      = this.data.radForStep + this.startArcRad;
         
-        this.coords.arcStart = getCoordinatesForRads(
+        this.coords.arcStart= getCoordinatesForRads(
             this.data.radiusWithPadding,
-            this.data.radius,
+            radius,
             this.startArcRad
         );
 
-        this.coords.arcEnd = getCoordinatesForRads(
+        this.coords.arcEnd  = getCoordinatesForRads(
             this.data.radiusWithPadding,
-            this.data.radius,
+            radius,
             this.endArcRad
         );
         
@@ -68,33 +62,46 @@ class Slice extends PartInterface {
 
         this.pathArray = [
             `M ${startX} ${startY}`, // Move
-            `A ${this.data.radius} ${this.data.radius} 0 0 1 ${endX} ${endY}`, // Arc
+            `A ${radius} ${radius} 0 0 1 ${endX} ${endY}`, // Arc
             `L ${this.data.radiusWithPadding} ${this.data.radiusWithPadding}` // Line
         ];
 
         if(this.slices.length){
-            const degForStep = this.data.degForStep / this.options.slices.length;
+            let radForStep = this.data.radForStep / this.slices.length;
 
             this.slices.forEach((slice, i) => {
                 slice.draw({
                     ...this.data,
-                    number: i,
-                    radForStep: degToRad(degForStep),
-                    degForStep
+                    number           : i,
+                    radForStep       : radForStep,
+                    degForStep       : radToDeg(radForStep),
+                    innerCircleRadius: radius,
+                    radius           : this.data.radius + this.data.nthLevelSliceWidth,
+                    parentRad        : this.startArcRad,
+                    parentDeg        : radToDeg(this.startArcRad)
                 });
             })
         }
 
+        this.group      = this.parent.group();
+        
         this.group
+            .addClass(this.options.sliceClass)
             .path(this.pathArray.join(' '))
             .fill(this.options.backgroundColor)
-            .style(this.options.styles.defaults)
+            .style(this.options.styles.defaults);
 
         this.drawContent();
 
         this.group
-            .rotate(this.rotateStepDeg, this.data.radiusWithPadding, this.data.radiusWithPadding)
+            .rotate(
+                this.rotateStepDeg, 
+                this.data.radiusWithPadding, 
+                this.data.radiusWithPadding
+            )
             .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding);
+
+        this.bindCallbacks();
 
         return this;
     }
@@ -130,8 +137,26 @@ class Slice extends PartInterface {
      * Adds callbacks for events
      */
     bindCallbacks(){
-        if(this.options.onClick)
-            this.group.on('click', this.options.onClick);
+        this.group.on('click', ev => {
+            ev.preventDefault();
+
+            if(typeof this.options.onClick === 'function')
+                this.options.onClick(ev, this);
+
+            if(!this.slices.length)
+                return false;
+
+            ev.stopPropagation();
+
+            if(this.isSlicesOpen){
+                this.slices.map(s => s.hide());
+                this.isSlicesOpen = false;
+            }
+            else {
+                this.slices.map(s => s.show());
+                this.isSlicesOpen = true;
+            }
+        });
         
         this.group.on('hover', () => {
             this.group.style(this.options.styles.hover);
@@ -162,9 +187,9 @@ class Slice extends PartInterface {
 
     hide(time = this.options.sliceHideTime){
         let promises = [Promise.resolve()];
-
-        // if(this.slices.length)
-            // this.slices.map(slice => slice.hide());
+        
+        if(this.slices.length)
+            promises = this.slices.map(slice => slice.hide());
 
         return Promise.all(promises).then(() => {
             return new Promise((resolve) => {
