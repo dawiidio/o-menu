@@ -12,6 +12,7 @@ import {
 const OPTIONS_DEFAULTS = {
     menu        : MENU_DEFAULTS,
     slice       : SLICE_DEFAULTS,
+    nthSlice    : SLICE_DEFAULTS,
     slices      : [],
     onOpen      : null,
     onClose     : null
@@ -35,8 +36,12 @@ const createInstance = (selector, newOptions, defaultOptions) => {
 
     const createSlices = (slices, parent) => {
         slices.forEach(sliceOptions => {
-            const options = {...defaultOptions.slice, ...sliceOptions};
-            const slice   = parent instanceof CircleMenu 
+            const isFirstLvl = parent instanceof CircleMenu;            
+            const options    = {...(isFirstLvl ? defaultOptions.slice : defaultOptions.nthSlice), ...sliceOptions};
+            
+            console.log(isFirstLvl, options);
+
+            const slice      = isFirstLvl 
                 ? new FirstLevelSlice(newMenuInstance.svg, options)
                 : new NthLevelSlice(newMenuInstance.svg, options);
     

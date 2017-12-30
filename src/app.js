@@ -78,7 +78,7 @@ const onOpenCb = () => {
                 sliceClass : 'circle-slice',
                 slices: [
                     {
-                        contentSize : 38,
+                        // contentSize : 38,
                         contentMoveX: 0,
                         contentMoveY: 0,
                         iconDistanceFromInnerCircle: 0,
@@ -89,7 +89,7 @@ const onOpenCb = () => {
                         sliceClass : 'circle-slice',
                     },
                     {
-                        contentSize : 38,
+                        // contentSize : 38,
                         contentMoveX: 0,
                         contentMoveY: 0,
                         iconDistanceFromInnerCircle: 0,
@@ -116,7 +116,7 @@ const onOpenCb = () => {
                 },
                 slices: [
                     {
-                        contentSize : 30,
+                        // contentSize : 30,
                         contentMoveX: 0,
                         contentMoveY: 0,
                         iconDistanceFromInnerCircle: 0,
@@ -127,7 +127,7 @@ const onOpenCb = () => {
                         sliceClass : 'circle-slice',
                     },
                     {
-                        contentSize : 38,
+                        // contentSize : 38,
                         contentMoveX: 0,
                         contentMoveY: 0,
                         iconDistanceFromInnerCircle: 0,
@@ -138,7 +138,7 @@ const onOpenCb = () => {
                         sliceClass : 'circle-slice',
                     },
                     {
-                        contentSize : 38,
+                        // contentSize : 38,
                         contentMoveX: 0,
                         contentMoveY: 0,
                         iconDistanceFromInnerCircle: 0,
@@ -182,6 +182,10 @@ const onOpenCb = () => {
 const c = circleMenuBuilder('drawing', {
     menu: {
         innerCircleRadius: 55
+    },
+    nthSlice: {
+        contentSize: 30,
+        contentFontSize: 30 //todo
     },
     onOpen: onOpenCb
 });
