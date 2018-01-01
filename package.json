@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dashboard -- webpack-dev-server",
-    "build": "cross-env NODE_ENV=production webpack -p"
+    "plugin": "cross-env NODE_ENV=production webpack --config webpack.plugin.js"
   },
   "keywords": [
     "webpack",
@@ -29,9 +29,12 @@
     "style-loader": "^0.18.2",
     "webpack": "^3.5.4",
     "webpack-dashboard": "^0.4.0",
-    "webpack-dev-server": "^2.9.5"
+    "webpack-dev-server": "^2.9.5",
+    "webpack-merge": "^4.1.1"
   },
   "dependencies": {
+    "color": "^2.0.1",
+    "object-to-css": "github:natew/object-to-css",
     "svg.js": "^2.6.3"
   }
 }

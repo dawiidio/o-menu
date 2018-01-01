@@ -3,8 +3,10 @@ import {
     radToDeg,
     sliceToDeg,
     getCoordinatesForRads,
-    createElementNS
+    createElementNS,
+    setStyles
 } from '../utils/utils';
+import objectToCSS from 'object-to-css';
 import PartInterface from './PartInterface';
 
 class Slice extends PartInterface {
@@ -20,6 +22,7 @@ class Slice extends PartInterface {
         this.data           = {};
         this.group          = null;
         this.number         = null;
+        this.clickValue     = null;
         this.coords         = {
             arcStart: [],
             arcEnd  : [],
@@ -37,7 +40,6 @@ class Slice extends PartInterface {
     draw(data){
         this.data           = data;
         this.number         = this.data.number;
-        
         const radius        = this.data.radius;
 
         this.rotateStepDeg  = -((this.number * this.data.degForStep))+this.data.circleDegOrigin+(this.data.parentDeg||0);
@@ -78,7 +80,8 @@ class Slice extends PartInterface {
                     innerCircleRadius: radius,
                     radius           : this.data.radius + this.data.nthLevelSliceWidth,
                     parentRad        : this.startArcRad,
-                    parentDeg        : radToDeg(this.startArcRad)
+                    parentDeg        : radToDeg(this.startArcRad),
+                    parentFill       : this.options.styles.defaults.fill
                 });
             })
         }
@@ -88,7 +91,6 @@ class Slice extends PartInterface {
         this.group
             .addClass(this.options.sliceClass)
             .path(this.pathArray.join(' '))
-            .fill(this.options.backgroundColor)
             .style(this.options.styles.defaults);
 
         this.drawContent();
@@ -126,9 +128,22 @@ class Slice extends PartInterface {
             transform   : `rotate(${Math.abs(this.data.circleDegOrigin)} ${contentX} ${contentY})`
         };
         
-        const contentElement = createElementNS('foreignObject', attrs);
+        const contentElement   = createElementNS('foreignObject', attrs);
+        const calculatedStyles = {
+            ...this.options.styles.contentContainer,
+            ...{
+                width : this.options.contentSize,
+                height: this.options.contentSize
+            }
+        };
 
-        contentElement.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${this.options.contentSize}px; height: ${this.options.contentSize}px; color:${this.options.contentColor}; font-size:${this.options.contentFontSize}px; cursor: pointer;">${this.options.contentHTML}</div>`;
+        contentElement.innerHTML = `
+            <div xmlns="http://www.w3.org/1999/xhtml" 
+                style="${objectToCSS(calculatedStyles)}"
+            >
+                ${this.options.content}
+            </div>
+        `;
         
         this.group.node.appendChild(contentElement);
     }
@@ -143,8 +158,11 @@ class Slice extends PartInterface {
             if(typeof this.options.onClick === 'function')
                 this.options.onClick(ev, this);
 
-            if(!this.slices.length)
+            if(!this.slices.length){
+                this.clickValue = this.options.value;
+
                 return false;
+            }
 
             ev.stopPropagation();
 

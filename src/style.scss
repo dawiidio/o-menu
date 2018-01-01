@@ -7,3 +7,41 @@ body{
   background-color: #ececec;
   min-height: 200vh;
 }
+
+        /**
+ display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-grow: 1;
+ */
+
+.inner-circle-content{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+
+  div {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    flex-grow: 1;
+
+    span{
+      align-self: center;
+    }
+
+    &:nth-child(1){
+
+    }
+
+    &:nth-child(2){
+      
+    }
+  }
+}

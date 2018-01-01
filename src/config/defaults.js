@@ -3,15 +3,16 @@ export const MENU_DEFAULTS = {
     elClass : 'circle-menu',
     circleDegOrigin: -90,
     innerCircleWidth: 45,
+    innerCircleContent: ``,
     firstLevelSliceWidth: 70,
     nthLevelSliceWidth: 50,
-    innerCircleBackgroundColor: '#fff',
     menuShowTime: 100,
     menuHideTime: 100,
     styles : {
         innerCircle: {
             strokeColor: '',
-            strokeWidth: ''
+            strokeWidth: '',
+            fill: '#fff',
         },
         hidden : {
             zIndex: -1,
@@ -31,20 +32,23 @@ export const SLICE_DEFAULTS = {
     contentSize : 38,
     contentMoveX: 0,
     contentMoveY: 0,
+    parentFillMode : 0,
     iconDistanceFromInnerCircle: 0,
-    backgroundColor: null,
-    contentColor: null,
-    contentFontSize: null,
-    contentHTML: null,
+    content: null,
     sliceClass : 'circle-slice',
     sliceShowTime: 100,
     sliceHideTime: 100,
     slices: [],
+    value: null,
     styles: {
         defaults: {
             cursor: 'pointer',
-            strokeColor: '',
-            strokeWidth: '' // todo strokes
+            fill: '#f1f1f1'
+        },
+        contentContainer: {
+            color: 'red',
+            fontSize: 38,
+            cursor: 'pointer'
         },
         hover: {
             

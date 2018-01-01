@@ -1,3 +1,26 @@
+
+
+/**
+ * 
+ * @param {Node} node 
+ * @param {Object} styles 
+ */
+export const setStyles     = (node, styles) => {
+    const keys = Object.keys(styles);
+
+    keys.forEach(key => node.style[key] = styles[key]);
+
+    return node;
+};
+
+
+/**
+ * 
+ * @param {number} min 
+ * @param {number} max 
+ */
+export const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
 /**
  * convert degrees to radians
  * 
@@ -85,9 +108,12 @@ export const createElementNS = (elementName, attrs = {}) => {
  * @returns {object}
  */
 export const dumpExtend = (a, b = {}, c = {}) => {
-    let bKeys = Object.keys(b);
+    let temp = Object.keys(b).concat(Object.keys(c));
+    let keys = [];
 
-    bKeys.forEach(key => {
+    (new Set(temp)).forEach(val => keys.push(val))
+
+    keys.forEach(key => {
         if(!c.hasOwnProperty(key))
             return a[key] = b[key];
         else {
@@ -107,3 +133,24 @@ export const dumpExtend = (a, b = {}, c = {}) => {
  * @returns {bool} 
  */
 export const hasNestedSlices = slicesArr => slicesArr.reduce((a, b) => a || !!(b.slices && b.slices.length), false);
+
+/**
+ * 
+ * @param {array} arr 
+ * @param {string} key 
+ */
+export const getValueFromNestedSlice = (arr, key) => {
+	let val = null;
+
+	for(let slice of arr){
+		if(slice[key])
+			return slice[key];
+		else if(slice.slices && slice.slices.length){
+			 let temp = getValueFromNestedSlice(slice.slices, key);
+			 if(temp)
+				val = temp;
+		}
+	}
+
+	return val;
+};

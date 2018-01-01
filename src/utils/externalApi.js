@@ -2,7 +2,8 @@ import CircleMenu from '../parts/CircleMenu';
 import FirstLevelSlice from '../parts/FirstLevelSlice';
 import NthLevelSlice from '../parts/NthLevelSlice';
 import {
-    dumpExtend
+    dumpExtend,
+    getValueFromNestedSlice
 } from './utils';
 import {
     MENU_DEFAULTS,
@@ -10,16 +11,14 @@ import {
 } from '../config/defaults';
 
 const OPTIONS_DEFAULTS = {
-    menu        : MENU_DEFAULTS,
-    slice       : SLICE_DEFAULTS,
-    nthSlice    : SLICE_DEFAULTS,
-    slices      : [],
-    onOpen      : null,
-    onClose     : null
+    menu                : MENU_DEFAULTS,
+    slice               : SLICE_DEFAULTS,
+    nthSlice            : SLICE_DEFAULTS,
+    slices              : [],
+    onOpen              : null,
+    onClose             : null,
+    onEndCloseAnimation : null
 };
-
-// todo save as module
-// todo ng5 module
 
 /**
  * Simple factory function for Menu
@@ -31,15 +30,20 @@ const OPTIONS_DEFAULTS = {
  */
 const createInstance = (selector, newOptions, defaultOptions) => {
     const instanceOptions    = dumpExtend({}, defaultOptions, newOptions);
+
     const mapedSlices        = instanceOptions.slices.map( slice => ({...defaultOptions.slice, ...slice}) );
     const newMenuInstance    = new CircleMenu(selector, instanceOptions.menu);
 
     const createSlices = (slices, parent) => {
         slices.forEach(sliceOptions => {
             const isFirstLvl = parent instanceof CircleMenu;            
-            const options    = {...(isFirstLvl ? defaultOptions.slice : defaultOptions.nthSlice), ...sliceOptions};
+            const options    = dumpExtend({}, (isFirstLvl 
+                    ? instanceOptions.slice 
+                    : instanceOptions.nthSlice
+                ),
+                sliceOptions
+            ); 
             
-            console.log(isFirstLvl, options);
 
             const slice      = isFirstLvl 
                 ? new FirstLevelSlice(newMenuInstance.svg, options)
@@ -68,7 +72,7 @@ export default (selector, userOptions) => {
     
     const defaultInstanceOptions = dumpExtend({}, OPTIONS_DEFAULTS, userOptions);
     
-    let menuInstance = createInstance(selector, defaultInstanceOptions, defaultInstanceOptions);
+    let menuInstance = null;
 
     /**
      * close menu
@@ -76,7 +80,17 @@ export default (selector, userOptions) => {
     const close = ev => {
         menuInstance
             .hide()
-            .then(() => menuInstance.destroy());
+            .then(() => {
+                const value = getValueFromNestedSlice(
+                    menuInstance.slices,
+                    'clickValue'
+                );
+
+                if(typeof defaultInstanceOptions.onEndCloseAnimation === 'function')
+                    defaultInstanceOptions.onEndCloseAnimation(value);
+
+                menuInstance.destroy();
+            });
 
         document.removeEventListener('click', close);
         isOpen = false;

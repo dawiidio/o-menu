@@ -1,11 +1,11 @@
 import SVG from 'svg.js';
-// import Slice from './FirstLevelSlice';
 import PartInterface from './PartInterface';
 
 import {
     degToRad,
     sliceToDeg,
-    hasNestedSlices
+    hasNestedSlices,
+    createElementNS
 } from '../utils/utils';
 
 class Menu extends PartInterface {
@@ -95,12 +95,35 @@ class Menu extends PartInterface {
     createInnerCircle(){
         if(this.innerCircle)
             this.innerCircle.remove();
-        
-        this.innerCircle = this.svg.circle(this.innerCircleDiameter)
-            .move(this.radiusWithPadding - (this.innerCircleDiameter/2), this.radiusWithPadding-(this.innerCircleDiameter/2))
-            .fill(this.options.innerCircleBackgroundColor)
+
+        const contentElement = createElementNS('foreignObject', {
+            width : this.innerCircleDiameter,
+            height: this.innerCircleDiameter
+        });
+
+        contentElement.innerHTML = `
+            <div xmlns="http://www.w3.org/1999/xhtml" 
+                style="width: ${this.innerCircleDiameter}px; height: ${this.innerCircleDiameter}px; border-radius: 50%; overflow: hidden;"
+            >
+                ${this.options.innerCircleContent}
+            </div>
+        `;
+                
+        this.innerCircle = this.svg
+            .group()
+            .size(this.innerCircleDiameter)
+            .move(
+                this.size/2,
+                this.size/2
+            )
             .attr('id', 'inner-circle')
-            .scale(0.01, this.radiusWithPadding, this.radiusWithPadding);
+            .scale(0.01);
+
+        this.innerCircle
+            .circle(this.innerCircleDiameter)
+            .style(this.options.styles.innerCircle)
+
+        this.innerCircle.node.appendChild(contentElement);
         
         return this;
     }
@@ -128,7 +151,7 @@ class Menu extends PartInterface {
         this.svg.style(this.options.styles.visible);
 
         return new Promise(resolve => {
-            this.innerCircle.animate(time).scale(1, this.radiusWithPadding, this.radiusWithPadding).after(() => {
+            this.innerCircle.animate(time).scale(1).after(() => {
                 let promisesArr =  this.slices.map(slice => slice.show(sliceTime));
                 
                 Promise.all(promisesArr).then(resolve);
@@ -151,7 +174,7 @@ class Menu extends PartInterface {
                 const promisesArr = this.slices.map(slice => slice.hide(sliceTime));
 
                 Promise.all(promisesArr).then(() => {
-                    this.innerCircle.animate(time).scale(0.01, this.radiusWithPadding, this.radiusWithPadding).after(() =>{
+                    this.innerCircle.animate(time).scale(0.01).after(() =>{
                         this.svg.style(this.options.styles.hidden);
                         resolve();
                     });

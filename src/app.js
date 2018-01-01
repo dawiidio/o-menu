@@ -1,179 +1,89 @@
 import './style.scss';
 
 import {
-    generateColor
+    generateColor,
+    randomInRange
 } from './utils/utils';
 
 import circleMenuBuilder from './utils/externalApi';
 
+
 const onOpenCb = () => {
     return {
+        menu: {
+            innerCircleContent: `
+                <img src="https://randomuser.me/api/portraits/men/${randomInRange(0, 100)}.jpg" style="width: 100%; height: auto;">
+            `
+        },
         slices :[
             {
-                contentSize : 38,
-                contentMoveX: 0,
-                contentMoveY: 0,
-                iconDistanceFromInnerCircle: 0,
-                backgroundColor: generateColor(),
-                contentColor: '#fff',
-                contentFontSize: 38,
-                contentHTML: '<strong>1</strong>',
-                sliceClass : 'circle-slice',
+                content: '<i class="fa fa-send"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#8BC34A'
+                    }
+                },
                 slices: [
                     {
-                        contentSize : 38,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 38,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
-                    },
-                    // {
-                    //     contentSize : 38,
-                    //     contentMoveX: 0,
-                    //     contentMoveY: 0,
-                    //     iconDistanceFromInnerCircle: 0,
-                    //     backgroundColor: generateColor(),
-                    //     contentColor: '#fff',
-                    //     contentFontSize: 38,
-                    //     contentHTML: '<i class="fa fa-home"></i>',
-                    //     sliceClass : 'circle-slice',
-                    // }
-                ]
-            },
-            {
-                contentSize : 38,
-                contentMoveX: 0,
-                contentMoveY: 10,
-                iconDistanceFromInnerCircle: 0,
-                backgroundColor: generateColor(),
-                contentColor: '#fff',
-                contentFontSize: 38,
-                contentHTML: '<i class="fa fa-home"></i>',
-                sliceClass : 'circle-slice'
-            },
-            {
-                contentSize : 38,
-                contentMoveX: 0,
-                contentMoveY: 0,
-                iconDistanceFromInnerCircle: 0,
-                backgroundColor: generateColor(),
-                contentColor: '#fff',
-                contentFontSize: 38,
-                contentHTML: '<i class="fa fa-home"></i>',
-                sliceClass : 'circle-slice'
-            },
-            {
-                contentSize : 38,
-                contentMoveX: 0,
-                contentMoveY: 0,
-                iconDistanceFromInnerCircle: 0,
-                backgroundColor: generateColor(),
-                contentColor: '#fff',
-                contentFontSize: 38,
-                contentHTML: '<i class="fa fa-home"></i>',
-                sliceClass : 'circle-slice',
-                slices: [
-                    {
-                        // contentSize : 38,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 38,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
+                        value: 'message',                        
+                        content: '<i class="fa fa-comment"></i>',
                     },
                     {
-                        // contentSize : 38,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 38,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
+                        value: 'mail', 
+                        content: '<i class="fa fa-envelope"></i>',
                     }
                 ]
             },
             {
-                contentSize : 38,
-                contentMoveX: 0,
-                contentMoveY: 0,
-                iconDistanceFromInnerCircle: 0,
-                backgroundColor: generateColor(),
-                contentColor: '#fff',
-                contentFontSize: 38,
-                contentHTML: '<i class="fa fa-home"></i>',
-                sliceClass : 'circle-slice',
-                onClick: () => {
-                    console.log(123);
+                content: '<i class="fa fa-pencil"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#FF9800'
+                    }
+                },
+            },
+            {
+                content: '<i class="fa fa-times"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#F44336'
+                    }
+                },
+            },
+            {
+                content: '<i class="fa fa-bar-chart"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#009688'
+                    }
                 },
                 slices: [
                     {
-                        // contentSize : 30,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 30,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
+                        content: '<i class="fa fa-pie-chart"></i>',
                     },
                     {
-                        // contentSize : 38,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 38,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
-                    },
-                    {
-                        // contentSize : 38,
-                        contentMoveX: 0,
-                        contentMoveY: 0,
-                        iconDistanceFromInnerCircle: 0,
-                        backgroundColor: generateColor(),
-                        contentColor: '#fff',
-                        contentFontSize: 38,
-                        contentHTML: '<i class="fa fa-home"></i>',
-                        sliceClass : 'circle-slice',
-                    },
-                    // {
-                    //     contentSize : 38,
-                    //     contentMoveX: 0,
-                    //     contentMoveY: 0,
-                    //     iconDistanceFromInnerCircle: 0,
-                    //     backgroundColor: generateColor(),
-                    //     contentColor: '#fff',
-                    //     contentFontSize: 38,
-                    //     contentHTML: '<i class="fa fa-home"></i>',
-                    //     sliceClass : 'circle-slice',
-                    // }
+                        content: '<i class="fa fa-area-chart"></i>',
+                    }
                 ]
             },
             {
-                contentSize : 38,
-                contentMoveX: 0,
-                contentMoveY: 0,
-                iconDistanceFromInnerCircle: 0,
-                backgroundColor: generateColor(),
-                contentColor: '#fff',
-                contentFontSize: 38,
-                contentHTML: '<i class="fa fa-home"></i>',
-                sliceClass : 'circle-slice',
-                onClick: () => {
-                    console.log(123);
-                }
+                content: '<i class="fa fa-cog"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#4CAF50'
+                    }
+                },
+                slices: [
+                    {
+                        content: '<i class="fa fa-power-off"></i>',
+                    },
+                    {
+                        content: '<i class="fa fa-server"></i>',
+                    },
+                    {
+                        content: '<i class="fa fa-database"></i>',
+                    }
+                ]
             }
         ]
     }
@@ -181,11 +91,58 @@ const onOpenCb = () => {
 
 const c = circleMenuBuilder('drawing', {
     menu: {
-        innerCircleRadius: 55
+        innerCircleRadius: 55,
+        // innerCircleContent: `
+        //     <div class="inner-circle-content">
+        //         <div>
+        //             <span>34</span>
+        //         </div>
+        //         <div>
+        //             <span>87</span>
+        //         </div>
+        //     </div>
+        // `
+        innerCircleContent: `
+            <img src="https://randomuser.me/api/portraits/men/${randomInRange(0, 100)}.jpg" style="width: 100%; height: auto;">
+        `
+        
     },
     nthSlice: {
-        contentSize: 30,
-        contentFontSize: 30 //todo
+        contentSize: 22,
+        iconDistanceFromInnerCircle: 5,
+        parentFillMode: -0.3,
+        styles: {
+            defaults: {
+                fill: 'rgb(104, 171, 28)',
+                strokeWidth: 1,
+                stroke: '#d6d6d6'
+            },
+            contentContainer:{
+                fontSize: 22,
+                color: '#efefef'
+            }
+        }
     },
-    onOpen: onOpenCb
+    slice: {
+        contentSize : 30,
+        iconDistanceFromInnerCircle: 10,
+        styles: {
+            defaults: {
+                fill: 'rgb(119, 208, 16)',
+                // strokeWidth: 1,
+                // stroke: '#d6d6d6'
+            },
+            contentContainer:{
+                fontSize: 30,
+                color: '#efefef'
+            },
+            hover: {
+
+            }
+        }
+    },
+    onOpen: onOpenCb,
+    onEndCloseAnimation: val => {
+        console.log(val);
+    }
 });

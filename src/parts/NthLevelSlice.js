@@ -1,4 +1,6 @@
 import Slice from './Slice.js';
+import objectToCSS from 'object-to-css';
+import Color from 'color';
 import {
     degToRad,
     radToDeg,
@@ -7,13 +9,32 @@ import {
     createElementNS
 } from '../utils/utils';
 
+
 class NthLevelSlice extends Slice {
     /**
      * Plot slice
      */
     draw(data){
+        let bgColorCalculatedFromParent = null;
+
         this.data           = data;
         this.number         = this.data.number;
+        this.parentFill     = this.data.parentFill
+            ? new Color(this.data.parentFill)
+            : null;
+
+        if(this.options.parentFillMode !== 0){
+            let fnName = '';
+            
+            if(this.options.parentFillMode > 0)
+                fnName = 'lighten';
+            else if(this.options.parentFillMode < 0)
+                fnName = 'darken';
+
+            bgColorCalculatedFromParent = this.parentFill[fnName]( 
+                Math.abs(this.options.parentFillMode)
+            ).hex();
+        }
         
         const radius        = this.data.radius;
 
@@ -49,11 +70,15 @@ class NthLevelSlice extends Slice {
 
         this.group      = this.parent.group();
         
+        const styles = {...this.options.styles.defaults};
+
+        if(bgColorCalculatedFromParent)
+            styles.fill = bgColorCalculatedFromParent;
+
         this.group
             .addClass(this.options.sliceClass)
             .path(this.pathArray.join(' '))
-            .fill(this.options.backgroundColor)
-            .style(this.options.styles.defaults);
+            .style(styles);
 
         this.drawContent();
         
@@ -84,9 +109,22 @@ class NthLevelSlice extends Slice {
        };
        
        const contentElement = createElementNS('foreignObject', attrs);
+       const calculatedStyles = {
+            ...this.options.styles.contentContainer,
+            ...{
+                width : this.options.contentSize,
+                height: this.options.contentSize
+            }
+        };
 
-       contentElement.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${this.options.contentSize}px; height: ${this.options.contentSize}px; color:${this.options.contentColor}; font-size:${this.options.contentFontSize}px; cursor: pointer;">${this.options.contentHTML}</div>`;
-       
+    //    contentElement.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="width: ${this.options.contentSize}px; height: ${this.options.contentSize}px; color:${this.options.contentColor}; font-size:${this.options.contentFontSize}px; cursor: pointer;">${this.options.contentHTML}</div>`;
+        contentElement.innerHTML = `
+            <div xmlns="http://www.w3.org/1999/xhtml" 
+                style="${objectToCSS(calculatedStyles)}"
+            >
+                ${this.options.content}
+            </div>
+        `;
        this.group.node.appendChild(contentElement);
    }
 
