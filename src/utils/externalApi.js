@@ -149,4 +149,4 @@ const externalApi = (selector, userOptions) => {
     }
 }
 
-module.exports = externalApi;
+export default externalApi;
