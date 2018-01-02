@@ -1,1 +1,3 @@
-export {default as default} from './lib/index.js';
+var lib = require('./lib/index.js');
+
+module.exports = lib;
