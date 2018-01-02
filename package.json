@@ -2,7 +2,7 @@
   "name": "circle-menu",
   "version": "1.0.0",
   "description": "Simple circular context menu based on svg",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dashboard -- webpack-dev-server",
     "build": "cross-env NODE_ENV=production webpack --config webpack.plugin.js"
