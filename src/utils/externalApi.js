@@ -67,7 +67,7 @@ const createInstance = (selector, newOptions, defaultOptions) => {
  * @param userOptions
  * @returns {{open: (function()), close: (function())}}
  */
-export default (selector, userOptions) => {
+const externalApi = (selector, userOptions) => {
     let isOpen    = false;
     
     const defaultInstanceOptions = dumpExtend({}, OPTIONS_DEFAULTS, userOptions);
@@ -148,3 +148,5 @@ export default (selector, userOptions) => {
         close
     }
 }
+
+module.exports = externalApi;

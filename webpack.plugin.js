@@ -11,8 +11,10 @@ const config = {
     app: './utils/externalApi.js',
   },
   output: {
-    path: __dirname,
+    path: path.resolve(__dirname, 'lib'),
     filename: 'index.js',
+    library: 'circleMenu',
+    libraryTarget:'umd'
   },
   module: {
     rules: [
@@ -29,7 +31,7 @@ const config = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(['index.js']), //cleans the dist folder
+    new CleanWebpackPlugin(['lib']), //cleans the dist folder
   ]
 };
 
