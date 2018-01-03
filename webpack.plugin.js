@@ -25,7 +25,7 @@ const config = {
         loader: 'babel-loader',
         options: {
           // presets: ['env'],
-          plugins: ["transform-object-rest-spread"]
+          plugins: ["add-module-exports", "transform-object-rest-spread"]
         }
       }
     }
