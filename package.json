@@ -1,5 +1,5 @@
 {
-  "name": "circle-menu",
+  "name": "o-menu",
   "version": "1.0.0",
   "description": "Simple circular context menu based on svg",
   "main": "./lib/index.js",
@@ -12,7 +12,8 @@
     "context",
     "contextual",
     "circular",
-    "circle"
+    "circle",
+    "o-menu"
   ],
   "author": "Dawid Wojda <dawiidio@gmail.com>",
   "license": "MIT",

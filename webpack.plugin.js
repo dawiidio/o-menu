@@ -13,7 +13,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'index.js',
-    library: 'circleMenu',
+    library: 'oMenu',
     libraryTarget:'umd'
   },
   module: {
