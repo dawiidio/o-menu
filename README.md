@@ -1,9 +1,9 @@
-# circular-menu
+# O! Menu (o-menu)
 Simple circular menu based on SVG
 
 ## Installation
 ```bash
-npm i --save dawiidio/circular-menu
+npm i --save dawiidio/o-menu
 ```
 ## Usage
 ```javascript
