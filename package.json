@@ -1,11 +1,15 @@
 {
   "name": "o-menu",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple circular context menu based on svg",
   "main": "./lib/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dashboard -- webpack-dev-server",
     "build": "cross-env NODE_ENV=production webpack --config webpack.plugin.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dawiidio/o-menu.git"
   },
   "keywords": [
     "menu",
