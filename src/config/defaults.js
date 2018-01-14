@@ -23,7 +23,9 @@ export const MENU_DEFAULTS = {
             visibility: 'visible'
         },
         defaults: {
-            position: 'fixed'
+            position: 'fixed',
+            top: 0,
+            left: 0
         }
     }
 };
