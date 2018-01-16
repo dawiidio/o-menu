@@ -8,6 +8,8 @@ export const MENU_DEFAULTS = {
     nthLevelSliceWidth: 50,
     menuShowTime: 100,
     menuHideTime: 100,
+    openMenuOn: 'contextmenu',
+    closeMenuOn: 'click',
     styles : {
         innerCircle: {
             strokeColor: '',

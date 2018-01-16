@@ -13,6 +13,7 @@ Options for menu:
 
 * **menu**:
     * **padding**: *number* - padding for menu
+    * **openMenuOn**: *string|boolean* - open menu on event, if false opens only manually by close and open methods in object returns by oMenu function call
     * **elClass**: *string* - css class which will be bounded to the menu main element
     * **circleDegOrigin**: *number* - default is -90
     * **innerCircleWidth**: *number* - radius width of inner circle
@@ -20,8 +21,7 @@ Options for menu:
     * **firstLevelSliceWidth**: *number* - width of first level slices radius
     * **nthLevelSliceWidth**: *number* - width of second level slices radius
     * **menuShowTime**: *number* - time in ms, defines speed of innerCircle show animation 
-    * **menuHideTime**: *number* - time in ms, defines speed of innerCircle hide animation 
-    * **menuShowTime**: *number* - time in ms, defines speed of innerCircle show animation 
+    * **menuHideTime**: *number* - time in ms, defines speed of innerCircle hide animation
     * **styles**: *object* - all styles needs to be written in camel case notation
         * **innerCircle**: *object* - any initial CSS styles for inner circle
         * **hidden**: *object* - styles appiled to element when it is hidden
@@ -113,6 +113,15 @@ const c = oMenu('main', {
             alert(`You want to: ${val}`)
     }
 });
+
+/**
+ in const c we have object with three methods for manual open, close and trigger menu
+ c = {
+    open: function(ev){...} - function which opens menu, requires event in first param
+    close: function(ev){...} - function which close menu, requires event in first param
+    trigger: function(ev){...} - function which triggers menu
+ }
+*/
 ```
 
 ## Full default options

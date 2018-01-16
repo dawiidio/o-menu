@@ -54,9 +54,9 @@ const createInstance = (selector, newOptions, defaultOptions) => {
 
             parent.pushSlice( slice );
         });
-    }
+    };
 
-    createSlices(instanceOptions.slices, newMenuInstance)
+    createSlices(instanceOptions.slices, newMenuInstance);
 
     return newMenuInstance.draw();
 };
@@ -92,7 +92,8 @@ const externalApi = (selector, userOptions) => {
                 menuInstance.destroy();
             });
 
-        document.removeEventListener('click', close);
+        if(defaultInstanceOptions.menu.closeMenuOn)
+            document.removeEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
         isOpen = false;
     };
 
@@ -123,7 +124,8 @@ const externalApi = (selector, userOptions) => {
         menuInstance.svg.style({ transform: `translate3d(${positionX}px, ${positionY}px, 0)` });
         menuInstance.show();
 
-        document.addEventListener('click', close);
+        if(defaultInstanceOptions.menu.openMenuOn)
+            document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
         isOpen = true;
     };
 
@@ -140,13 +142,15 @@ const externalApi = (selector, userOptions) => {
         else
             open(ev);
     };
-    
-    document.body.addEventListener('contextmenu', trigger);
+
+    if(defaultInstanceOptions.menu.openMenuOn)
+        document.body.addEventListener(defaultInstanceOptions.menu.openMenuOn, trigger);
     
     return {
         open,
-        close
-    }
+        close,
+        trigger
+    };
 }
 
 export default externalApi;
