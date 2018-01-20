@@ -129,7 +129,7 @@ const externalApi = (selector, userOptions) => {
         menuInstance.svg.style({ transform: `translate3d(${positionX}px, ${positionY}px, 0)` });
         menuInstance.show();
 
-        if(defaultInstanceOptions.menu.openMenuOn)
+        if(defaultInstanceOptions.menu.closeMenuOn)
             document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
         isOpen = true;
     };
