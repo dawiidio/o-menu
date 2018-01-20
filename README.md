@@ -13,7 +13,8 @@ Options for menu:
 
 * **menu**:
     * **padding**: *number* - padding for menu
-    * **openMenuOn**: *string|boolean* - open menu on event, if false opens only manually by close and open methods in object returns by oMenu function call
+    * **openMenuOn**: *string|boolean* - open menu on event, if false opens only manually by open method in object returns by oMenu function call
+    * **closeMenuOn**: *string|boolean* - close menu on event, if false close only manually by close method in object returns by oMenu function call
     * **elClass**: *string* - css class which will be bounded to the menu main element
     * **circleDegOrigin**: *number* - default is -90
     * **innerCircleWidth**: *number* - radius width of inner circle
@@ -117,7 +118,9 @@ const c = oMenu('main', {
 /**
  in const c we have object with three methods for manual open, close and trigger menu
  c = {
-    open: function(ev){...} - function which opens menu, requires event in first param
+    open: function(ev, options){...} - function which opens menu, requires event in first param and dynamic menu options
+                                       for second. WARNING! if you open menu manually, onOpen callback will never be called
+                                       therfore you need to pass options directly to open method. 
     close: function(ev){...} - function which close menu, requires event in first param
     trigger: function(ev){...} - function which triggers menu
  }

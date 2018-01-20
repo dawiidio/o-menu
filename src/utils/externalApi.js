@@ -101,8 +101,13 @@ const externalApi = (selector, userOptions) => {
      * open menu
      * @param ev
      */
-    const open = (ev) => {
-        const dynamicOptions = defaultInstanceOptions.onOpen(ev);
+    const open = (ev, manualOpenOptions) => {
+        let dynamicOptions = {};
+
+        if(!manualOpenOptions && typeof defaultInstanceOptions.onOpen === 'function')
+            dynamicOptions = defaultInstanceOptions.onOpen(ev);
+        else if(manualOpenOptions)
+            dynamicOptions = manualOpenOptions;
         
         menuInstance = createInstance(selector, dynamicOptions, defaultInstanceOptions);
 
