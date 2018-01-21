@@ -69,6 +69,7 @@ const createInstance = (selector, newOptions, defaultOptions) => {
  */
 const externalApi = (selector, userOptions) => {
     let isOpen    = false;
+    let pendingAnimation = false;
     
     const defaultInstanceOptions = dumpExtend({}, OPTIONS_DEFAULTS, userOptions);
     
@@ -78,10 +79,15 @@ const externalApi = (selector, userOptions) => {
      * close menu
      */
     const close = ev => {
-        if(!isOpen)
-            return;
+        if(!isOpen || pendingAnimation)
+            return Promise.reject();
 
-        menuInstance
+        if(defaultInstanceOptions.menu.closeMenuOn)
+            document.removeEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
+
+        pendingAnimation = true;
+
+        return menuInstance
             .hide()
             .then(() => {
                 const value = getValueFromNestedSlice(
@@ -93,12 +99,10 @@ const externalApi = (selector, userOptions) => {
                     defaultInstanceOptions.onEndCloseAnimation(value);
 
                 menuInstance.destroy();
+
+                isOpen = false;       
+                pendingAnimation = false;         
             });
-
-        if(defaultInstanceOptions.menu.closeMenuOn)
-            document.removeEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
-
-        isOpen = false;
     };
 
     /**
@@ -108,8 +112,13 @@ const externalApi = (selector, userOptions) => {
     const open = (ev, manualOpenOptions) => {
         let dynamicOptions = {};
 
+        if(pendingAnimation)
+            return Promise.reject();
+
         if(isOpen)
-            return close();
+            return close().then(() => open(ev, manualOpenOptions));
+
+        pendingAnimation = true;
 
         if(!manualOpenOptions && typeof defaultInstanceOptions.onOpen === 'function')
             dynamicOptions = defaultInstanceOptions.onOpen(ev);
@@ -134,12 +143,15 @@ const externalApi = (selector, userOptions) => {
             positionY = window.innerHeight - size;
 
         menuInstance.svg.style({ transform: `translate3d(${positionX}px, ${positionY}px, 0)` });
-        menuInstance.show();
 
         if(defaultInstanceOptions.menu.closeMenuOn)
             document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
 
         isOpen = true;
+
+        return menuInstance.show().then(() => {
+            pendingAnimation = false;
+        });
     };
 
     /**

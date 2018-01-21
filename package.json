@@ -1,6 +1,6 @@
 {
   "name": "o-menu",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Simple circular context menu based on svg",
   "main": "./lib/index.js",
   "scripts": {
