@@ -78,6 +78,9 @@ const externalApi = (selector, userOptions) => {
      * close menu
      */
     const close = ev => {
+        if(!isOpen)
+            return;
+
         menuInstance
             .hide()
             .then(() => {
@@ -94,6 +97,7 @@ const externalApi = (selector, userOptions) => {
 
         if(defaultInstanceOptions.menu.closeMenuOn)
             document.removeEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
+
         isOpen = false;
     };
 
@@ -103,6 +107,9 @@ const externalApi = (selector, userOptions) => {
      */
     const open = (ev, manualOpenOptions) => {
         let dynamicOptions = {};
+
+        if(isOpen)
+            return close();
 
         if(!manualOpenOptions && typeof defaultInstanceOptions.onOpen === 'function')
             dynamicOptions = defaultInstanceOptions.onOpen(ev);
@@ -131,6 +138,7 @@ const externalApi = (selector, userOptions) => {
 
         if(defaultInstanceOptions.menu.closeMenuOn)
             document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
+
         isOpen = true;
     };
 
@@ -152,6 +160,9 @@ const externalApi = (selector, userOptions) => {
         document.body.addEventListener(defaultInstanceOptions.menu.openMenuOn, trigger);
     
     return {
+        get isOpen() {
+            return isOpen;
+        },
         open,
         close,
         trigger
