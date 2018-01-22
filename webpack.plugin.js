@@ -24,7 +24,15 @@ const config = {
       use: {
         loader: 'babel-loader',
         options: {
-          // presets: ['env'],
+          "presets": [
+            [
+              "env",
+              {
+                "targets": { "uglify": true },
+                "useBuiltIns": true
+              }
+            ]
+          ],
           plugins: ["add-module-exports", "transform-es2015-modules-umd", "transform-object-rest-spread"]
         }
       }
