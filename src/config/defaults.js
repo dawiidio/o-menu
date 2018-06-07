@@ -55,7 +55,12 @@ export const SLICE_DEFAULTS = {
             cursor: 'pointer'
         },
         hover: {
-            
+
         }
     }
+};
+
+export const SLICE_EVENTS = {
+    hover: 'hover',
+    click: 'click',
 };

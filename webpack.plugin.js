@@ -7,6 +7,8 @@ const path = require('path');
 
 const config = {
   context: path.resolve(__dirname, 'src'),
+  mode: 'production',
+  target: "web",
   entry: {
     app: './utils/externalApi.js',
   },

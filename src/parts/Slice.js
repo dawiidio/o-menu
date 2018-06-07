@@ -8,10 +8,11 @@ import {
 } from '../utils/utils';
 import objectToCSS from 'object-to-css';
 import PartInterface from './PartInterface';
+import { SLICE_EVENTS } from '../config/defaults';
 
 class Slice extends PartInterface {
     /**
-     * 
+     *
      * @param svg {Object} SVG.js element
      * @param options {Object} Options for Slice
      */
@@ -46,7 +47,7 @@ class Slice extends PartInterface {
 
         this.startArcRad    = this.data.radForStep * this.data.number;
         this.endArcRad      = this.data.radForStep + this.startArcRad;
-        
+
         this.coords.arcStart= getCoordinatesForRads(
             this.data.radiusWithPadding,
             radius,
@@ -58,7 +59,7 @@ class Slice extends PartInterface {
             radius,
             this.endArcRad
         );
-        
+
         const [startX, startY] = this.coords.arcStart;
         const [endX, endY]     = this.coords.arcEnd;
 
@@ -87,7 +88,7 @@ class Slice extends PartInterface {
         }
 
         this.group      = this.parent.group();
-        
+
         this.group
             .addClass(this.options.sliceClass)
             .path(this.pathArray.join(' '))
@@ -97,8 +98,8 @@ class Slice extends PartInterface {
 
         this.group
             .rotate(
-                this.rotateStepDeg, 
-                this.data.radiusWithPadding, 
+                this.rotateStepDeg,
+                this.data.radiusWithPadding,
                 this.data.radiusWithPadding
             )
             .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding);
@@ -119,7 +120,7 @@ class Slice extends PartInterface {
         );
 
         const [contentX, contentY] = this.coords.content;
-        
+
         const attrs = {
             x           : contentX-(this.options.contentSize/2.15)+this.options.contentMoveX,
             y           : contentY-(this.options.contentSize/1.6)+this.options.contentMoveY,
@@ -127,7 +128,7 @@ class Slice extends PartInterface {
             height      : this.options.contentSize,
             transform   : `rotate(${Math.abs(this.data.circleDegOrigin)} ${contentX} ${contentY})`
         };
-        
+
         const contentElement   = createElementNS('foreignObject', attrs);
         const calculatedStyles = {
             ...this.options.styles.contentContainer,
@@ -144,7 +145,7 @@ class Slice extends PartInterface {
                 ${this.options.content}
             </div>
         `;
-        
+
         this.group.node.appendChild(contentElement);
     }
 
@@ -154,6 +155,8 @@ class Slice extends PartInterface {
     bindCallbacks(){
         this.group.on('click', ev => {
             ev.preventDefault();
+
+            this.trigger(SLICE_EVENTS.click, this.options.value);
 
             if(typeof this.options.onClick === 'function')
                 this.options.onClick(ev, this);
@@ -175,7 +178,7 @@ class Slice extends PartInterface {
                 this.isSlicesOpen = true;
             }
         });
-        
+
         this.group.on('hover', () => {
             this.group.style(this.options.styles.hover);
         });
