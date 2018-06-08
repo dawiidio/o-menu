@@ -8,7 +8,6 @@ export const MENU_DEFAULTS = {
     nthLevelSliceWidth: 50,
     menuShowTime: 100,
     menuHideTime: 100,
-    openMenuOn: 'contextmenu',
     closeMenuOn: 'click',
     styles : {
         innerCircle: {
@@ -65,23 +64,32 @@ export const OPTIONS_DEFAULTS = {
     slice               : SLICE_DEFAULTS,
     nthSlice            : SLICE_DEFAULTS,
     slices              : [],
-    onOpen              : null
 };
 
 export const SLICE_EVENTS = {
-    hover: 'hover',
+    mouseEnter: 'mouseEnter',
+    mouseLeave: 'mouseLeave',
     click: 'click',
+};
+
+export const NATIVE_SLICE_EVENTS = {
+    mouseover: SLICE_EVENTS.mouseEnter,
+    mouseout: SLICE_EVENTS.mouseLeave,
+    click: SLICE_EVENTS.click,
 };
 
 export const EXTERNAL_API_EVENTS = {
     sliceClick: 'sliceClick',
-    sliceHover: 'sliceHover',
+    sliceEnter: 'sliceEnter',
+    sliceLeave: 'sliceLeave',
     openMenu: 'openMenu',
     closeMenu: 'closeMenu',
-    hideAnimationEnd: 'hideAnimationEnd'
+    hideAnimationEnd: 'hideAnimationEnd',
+    showAnimationEnd: 'showAnimationEnd',
 };
 
 export const INTERNAL_EXTERNAL_EVENTS_MAPPING = {
-    [SLICE_EVENTS.hover]: EXTERNAL_API_EVENTS.sliceHover,
+    [SLICE_EVENTS.mouseEnter]: EXTERNAL_API_EVENTS.sliceEnter,
+    [SLICE_EVENTS.mouseLeave]: EXTERNAL_API_EVENTS.sliceLeave,
     [SLICE_EVENTS.click]: EXTERNAL_API_EVENTS.sliceClick,
 };

@@ -8,89 +8,6 @@ import {
 import circleMenuBuilder from './oMenu';
 
 
-const onOpenCb = () => {
-    return {
-        menu: {
-            innerCircleContent: `
-                <img src="https://randomuser.me/api/portraits/men/${randomInRange(0, 100)}.jpg" style="width: 100%; height: auto;">
-            `
-        },
-        slices :[
-            {
-                content: '<i class="fa fa-send"></i>',
-                styles:{
-                    defaults: {
-                        fill: '#8BC34A'
-                    }
-                },
-                slices: [
-                    {
-                        value: 'message',
-                        content: '<i class="fa fa-comment"></i>',
-                    },
-                    {
-                        value: 'mail',
-                        content: '<i class="fa fa-envelope"></i>',
-                    }
-                ]
-            },
-            {
-                content: '<i class="fa fa-pencil"></i>',
-                styles:{
-                    defaults: {
-                        fill: '#FF9800'
-                    }
-                },
-                value: 'ediiit something'
-            },
-            {
-                content: '<i class="fa fa-times"></i>',
-                styles:{
-                    defaults: {
-                        fill: '#F44336'
-                    }
-                },
-                value: { action: 'remove-something' }
-            },
-            {
-                content: '<i class="fa fa-bar-chart"></i>',
-                styles:{
-                    defaults: {
-                        fill: '#009688'
-                    }
-                },
-                slices: [
-                    {
-                        content: '<i class="fa fa-pie-chart"></i>',
-                    },
-                    {
-                        content: '<i class="fa fa-area-chart"></i>',
-                    }
-                ]
-            },
-            {
-                content: '<i class="fa fa-cog"></i>',
-                styles:{
-                    defaults: {
-                        fill: '#4CAF50'
-                    }
-                },
-                slices: [
-                    {
-                        content: '<i class="fa fa-power-off"></i>',
-                    },
-                    {
-                        content: '<i class="fa fa-server"></i>',
-                    },
-                    {
-                        content: '<i class="fa fa-database"></i>',
-                    }
-                ]
-            }
-        ]
-    }
-};
-
 const c = circleMenuBuilder('drawing', {
     menu: {
         innerCircleRadius: 55,
@@ -143,12 +60,101 @@ const c = circleMenuBuilder('drawing', {
             }
         }
     },
-    onOpen: onOpenCb,
     onEndCloseAnimation: val => {
         console.log(val);
     }
 });
 
-c.on('sliceClick', ev => {
+// c.on('sliceEnter', ev => {
+//     console.log(ev);
+// })
+c.on('hideAnimationEnd', ev => {
     console.log(ev);
 })
+
+document.body.addEventListener('contextmenu', ev => {
+    ev.preventDefault();
+
+    const dynamicMenuOptions = {
+        menu: {
+            innerCircleContent: `
+                <img src="https://randomuser.me/api/portraits/men/${randomInRange(0, 100)}.jpg" style="width: 100%; height: auto;">
+            `
+        },
+        slices :[
+            {
+                content: '<i class="fa fa-send"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#8BC34A'
+                    }
+                },
+                slices: [
+                    {
+                        value: 'message',
+                        content: '<i class="fa fa-comment"></i>',
+                    },
+                    {
+                        value: 'mail',
+                        content: '<i class="fa fa-envelope"></i>',
+                    }
+                ]
+            },
+            {
+                content: '<i class="fa fa-pencil"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#FF9800'
+                    }
+                },
+                data: 'ediiit something'
+            },
+            {
+                content: '<i class="fa fa-times"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#F44336'
+                    }
+                },
+                data: { action: 'remove-something' }
+            },
+            {
+                content: '<i class="fa fa-bar-chart"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#009688'
+                    }
+                },
+                slices: [
+                    {
+                        content: '<i class="fa fa-pie-chart"></i>',
+                    },
+                    {
+                        content: '<i class="fa fa-area-chart"></i>',
+                    }
+                ]
+            },
+            {
+                content: '<i class="fa fa-cog"></i>',
+                styles:{
+                    defaults: {
+                        fill: '#4CAF50'
+                    }
+                },
+                slices: [
+                    {
+                        content: '<i class="fa fa-power-off"></i>',
+                    },
+                    {
+                        content: '<i class="fa fa-server"></i>',
+                    },
+                    {
+                        content: '<i class="fa fa-database"></i>',
+                    }
+                ]
+            }
+        ]
+    }
+
+    c.open(ev, dynamicMenuOptions)
+});

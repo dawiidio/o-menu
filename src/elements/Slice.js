@@ -4,9 +4,9 @@ import {
     createElementNS
 } from '../helpers/utils';
 import objectToCSS from 'object-to-css';
-import { SLICE_EVENTS } from '../config/defaults';
+import { SLICE_EVENTS, NATIVE_SLICE_EVENTS } from '../config/defaults';
 import { ISlice } from "../interfaces/ISlice";
-import {OMenuSliceEvent} from "../helpers/oMenuEvents";
+import { OMenuSliceEvent } from "../helpers/oMenuEvents";
 
 class Slice extends ISlice {
     /**
@@ -132,7 +132,8 @@ class Slice extends ISlice {
             ...this.options.styles.contentContainer,
             ...{
                 width : this.options.contentSize,
-                height: this.options.contentSize
+                height: this.options.contentSize,
+                pointerEvents: 'none', // hack https://stackoverflow.com/a/18837002
             }
         };
 
@@ -148,53 +149,35 @@ class Slice extends ISlice {
     }
 
     /**
-     * Adds callbacks for events
+     * Adds callbacks for events and map them to internal events
      */
     bindCallbacks(){
-        this.group.on('click', ev => {
-            ev.preventDefault();
-            ev.stopPropagation();
+        Object
+            .keys(NATIVE_SLICE_EVENTS)
+            .forEach(eventName => {
+                this.group.on(eventName, ev => {
+                    if (eventName === 'click') {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    }
 
-            this.triggerEvent(new OMenuSliceEvent({
-                type: SLICE_EVENTS.click,
-                target: this,
-                originalEvent: ev
-            }));
-
-            // if(typeof this.options.onClick === 'function')
-            //     this.options.onClick(ev, this);
-            //
-            // if(!this.slices.length){
-            //     this.clickValue = this.options.value;
-            //
-            //     return false;
-            // }
-
-            if(this.isSlicesOpen){
-                this.slices.map(s => s.hide());
-                this.isSlicesOpen = false;
-            }
-            else {
-                this.slices.map(s => s.show());
-                this.isSlicesOpen = true;
-            }
-        });
-
-        this.group.on('hover', (ev) => {
-          this.triggerEvent(new OMenuSliceEvent({
-              type: SLICE_EVENTS.hover,
-              target: this,
-              originalEvent: ev
-          }));
-        });
+                    this.triggerEvent(new OMenuSliceEvent({
+                        type: NATIVE_SLICE_EVENTS[ev.type],
+                        target: this,
+                        originalEvent: ev
+                    }));
+                })
+            });
     }
 
     /**
      * Destroying class instance
      */
     destroy(){
-        this.group.off('hover');
-        this.group.off('click');
+        Object
+            .keys(NATIVE_SLICE_EVENTS)
+            .forEach(eventName => this.group.off(eventName));
+
         this.off();
         this.group.remove();
         this.group = null;

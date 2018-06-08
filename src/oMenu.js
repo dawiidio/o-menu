@@ -3,16 +3,16 @@ import FirstLevelSlice from './elements/FirstLevelSlice';
 import NthLevelSlice from './elements/NthLevelSlice';
 import {
     dumpExtend,
+    recursivelyForEachSlices,
 } from './helpers/utils';
 import {
     SLICE_EVENTS,
-    EXTERNAL_API_EVENTS,
     OPTIONS_DEFAULTS,
-    INTERNAL_EXTERNAL_EVENTS_MAPPING
+    EXTERNAL_API_EVENTS, NATIVE_SLICE_EVENTS
 } from './config/defaults';
 import { IEvent } from "./interfaces/IEvent";
 import { OMenuEventEmitter } from "./helpers/OMenuEventEmitter";
-import { OMenuExternalEvent } from "./helpers/oMenuEvents";
+import {OMenuExternalEvent, OMenuSliceEvent} from "./helpers/oMenuEvents";
 
 /**
  * Simple factory function for Menu
@@ -37,7 +37,6 @@ const createInstance = (selector, newOptions, defaultOptions) => {
                 ),
                 sliceOptions
             );
-
 
             const slice = isFirstLvl
                 ? new FirstLevelSlice(newMenuInstance.svg, options)
@@ -76,10 +75,44 @@ const externalApi = (selector, userOptions) => {
     };
 
     /**
-     * close menu
+     * Default click listener, manages menu and slices state after click event
+     *
+     * @param ev
+     * @returns {*}
+     */
+    const embedOnClick = ev => {
+        if (ev.isSlice) {
+            if(!ev.hasNestedSlices)
+                return close(ev);
+
+            if (ev.target.isSlicesOpen) {
+                ev.target.slices.forEach(s => s.hide());
+                ev.target.isSlicesOpen = false;
+            }
+            else {
+                ev.target.slices.forEach(s => s.show());
+                ev.target.isSlicesOpen = true;
+            }
+        }
+    };
+
+    /**
+     *
+     * @param ev {IEvent|Event}
+     * @returns {*}
      */
     const close = ev => {
-        const valueForCallback = ev instanceof IEvent ? ev : null;
+        const sendEvent = type => {
+            const event = ev instanceof IEvent
+                ? new OMenuExternalEvent(ev, { type })
+                : new OMenuExternalEvent({
+                    type,
+                    target: null,
+                    originalEvent: ev
+                });
+
+            api.triggerEvent(event);
+        };
 
         if(!isOpen || pendingAnimation)
             return Promise.reject();
@@ -89,11 +122,12 @@ const externalApi = (selector, userOptions) => {
 
         pendingAnimation = true;
 
+        sendEvent(EXTERNAL_API_EVENTS.closeMenu);
+
         return menuInstance
             .hide()
             .then(() => {
-                if(typeof defaultInstanceOptions.onEndCloseAnimation === 'function')
-                    defaultInstanceOptions.onEndCloseAnimation(valueForCallback);
+                sendEvent(EXTERNAL_API_EVENTS.hideAnimationEnd);
 
                 menuInstance.destroy();
 
@@ -103,11 +137,20 @@ const externalApi = (selector, userOptions) => {
     };
 
     /**
-     * open menu
-     * @param ev
+     *
+     * @param ev {Event} event which triggers open menu, for positioning purposes
+     * @param manualOpenOptions {object} dynamic options which will be merged
+     * with default, passed during externalApi fn call
+     * @returns {*}
      */
     const open = (ev, manualOpenOptions) => {
         let dynamicOptions = {};
+
+        api.triggerEvent(new OMenuExternalEvent({
+            type: EXTERNAL_API_EVENTS.openMenu,
+            target: null,
+            originalEvent: ev
+        }));
 
         if(pendingAnimation)
             return Promise.reject();
@@ -117,10 +160,7 @@ const externalApi = (selector, userOptions) => {
 
         pendingAnimation = true;
 
-        if(!manualOpenOptions && typeof defaultInstanceOptions.onOpen === 'function')
-            dynamicOptions = defaultInstanceOptions.onOpen(ev);
-        else if(manualOpenOptions)
-            dynamicOptions = manualOpenOptions;
+        dynamicOptions = manualOpenOptions;
 
         menuInstance = createInstance(selector, dynamicOptions, defaultInstanceOptions);
 
@@ -146,16 +186,23 @@ const externalApi = (selector, userOptions) => {
         if(defaultInstanceOptions.menu.closeMenuOn)
             document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
 
-        menuInstance.slices.forEach(slice => {
-            slice.on([SLICE_EVENTS.click, SLICE_EVENTS.hover], ev => {
-                api.triggerEvent(new OMenuExternalEvent(ev));
-            });
-        });
+        /**
+         * mapping internal events to external
+         */
+        recursivelyForEachSlices(menuInstance.slices,
+                slice => slice.on(Object.values(SLICE_EVENTS),
+                        ev => api.triggerEvent(new OMenuExternalEvent(ev))));
 
         isOpen = true;
 
         return menuInstance.show().then(() => {
             pendingAnimation = false;
+
+            api.triggerEvent(new OMenuExternalEvent({
+                type: EXTERNAL_API_EVENTS.showAnimationEnd,
+                target: null,
+                originalEvent: ev
+            }));
         });
     };
 
@@ -173,12 +220,11 @@ const externalApi = (selector, userOptions) => {
             open(ev);
     };
 
-    if(defaultInstanceOptions.menu.openMenuOn)
-        document.body.addEventListener(defaultInstanceOptions.menu.openMenuOn, trigger);
-
     api.trigger = trigger;
     api.open = open;
     api.close = close;
+
+    api.on(EXTERNAL_API_EVENTS.sliceClick, embedOnClick);
 
     return api;
 };

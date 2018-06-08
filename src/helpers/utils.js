@@ -1,10 +1,10 @@
-
-
 /**
- * 
- * @param {Node} node 
- * @param {Object} styles 
+ *
+ * @param {Node} node
+ * @param {Object} styles
  */
+
+
 export const setStyles     = (node, styles) => {
     const keys = Object.keys(styles);
 
@@ -15,22 +15,22 @@ export const setStyles     = (node, styles) => {
 
 
 /**
- * 
- * @param {number} min 
- * @param {number} max 
+ *
+ * @param {number} min
+ * @param {number} max
  */
 export const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 /**
  * convert degrees to radians
- * 
+ *
  * @param deg {number}
  */
 export const degToRad      = deg => deg * (Math.PI/180);
 
 /**
  * convert degrees to radians
- * 
+ *
  * @param deg {number}
  */
 export const radToDeg      = rad => (rad *180) / Math.PI;
@@ -38,14 +38,14 @@ export const radToDeg      = rad => (rad *180) / Math.PI;
 
 /**
  * convert percents to degrees
- * 
+ *
  * @param percents {number}
  */
 export const percentsToDeg = percents => (percents/100)*360;
 
 /**
  * Calculate arc angle of circle for every slice based on their amount
- * 
+ *
  * @param slices {number}
  */
 export const sliceToDeg    = slices => percentsToDeg(
@@ -54,7 +54,7 @@ export const sliceToDeg    = slices => percentsToDeg(
 
 /**
  * generate part for one color in hex notation like 3f, 48 etc.
- * 
+ *
  * @returns {string}
  */
 export const generatePart = () => {
@@ -64,14 +64,14 @@ export const generatePart = () => {
 
 /**
  * Compose color from parts
- * 
+ *
  * @returns {string}
  */
 export const generateColor = () => ['#', generatePart(), generatePart(), generatePart()].join('');
 
 /**
  * calculate coords for slice angle
- * 
+ *
  * @param origin {number}
  * @param r {number}
  * @param rads {number}
@@ -85,7 +85,7 @@ export const getCoordinatesForRads = (origin, r, rads) => {
 
 /**
  * Syntax sugar for document.createElementNS
- * 
+ *
  * @param elementName {string}
  * @param attrs {object}
  * @returns {Element}
@@ -93,15 +93,15 @@ export const getCoordinatesForRads = (origin, r, rads) => {
 export const createElementNS = (elementName, attrs = {}) => {
     const el    = document.createElementNS("http://www.w3.org/2000/svg", elementName);
     const keys  = Object.keys(attrs);
-    
+
     keys.forEach( key => el.setAttributeNS(null, key, attrs[key]) );
-    
+
     return el;
 };
 
 /**
  * Small extend function for classes options
- * 
+ *
  * @param a {object}
  * @param b {object}
  * @param c {object}
@@ -128,28 +128,25 @@ export const dumpExtend = (a, b = {}, c = {}) => {
 };
 
 /**
- * 
+ *
  * @param {array} slicesArr
- * @returns {bool} 
+ * @returns {bool}
  */
 export const hasNestedSlices = slicesArr => slicesArr.reduce((a, b) => a || !!(b.slices && b.slices.length), false);
 
 /**
- * 
- * @param {array} arr 
- * @param {string} key 
+ *
+ * @param {array} arr
+ * @param {string} key
  */
-export const getValueFromNestedSlice = (arr, key) => {
+export const recursivelyForEachSlices = (arr, cb) => {
 	let val = null;
 
 	for(let slice of arr){
-		if(slice[key])
-			return slice[key];
-		else if(slice.slices && slice.slices.length){
-			 let temp = getValueFromNestedSlice(slice.slices, key);
-			 if(temp)
-				val = temp;
-		}
+		cb(slice);
+
+		if(slice.slices && slice.slices.length)
+		    recursivelyForEachSlices(slice.slices, cb);
 	}
 
 	return val;

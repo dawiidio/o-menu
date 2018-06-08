@@ -24,12 +24,9 @@ class NthLevelSlice extends Slice {
             : null;
 
         if(this.options.parentFillMode !== 0){
-            let fnName = '';
-
-            if(this.options.parentFillMode > 0)
-                fnName = 'lighten';
-            else if(this.options.parentFillMode < 0)
-                fnName = 'darken';
+            let fnName = this.options.parentFillMode < 0
+                ? 'darken'
+                : 'lighten';
 
             bgColorCalculatedFromParent = this.parentFill[fnName](
                 Math.abs(this.options.parentFillMode)
@@ -113,7 +110,8 @@ class NthLevelSlice extends Slice {
             ...this.options.styles.contentContainer,
             ...{
                 width : this.options.contentSize,
-                height: this.options.contentSize
+                height: this.options.contentSize,
+                pointerEvents: 'none', // hack https://stackoverflow.com/a/18837002
             }
         };
 
