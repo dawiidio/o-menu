@@ -1,16 +1,17 @@
 import SVG from 'svg.js';
-import PartInterface from './PartInterface';
 
 import {
     degToRad,
     sliceToDeg,
     hasNestedSlices,
     createElementNS
-} from '../utils/utils';
+} from '../helpers/utils';
 
-class Menu extends PartInterface {
+import { IOMenu } from "../interfaces/IOMenu";
+
+class Menu extends IOMenu {
     /**
-     * 
+     *
      * @param selector {string} css id for parent element where menu should be triggered
      * @param options {Object} Options for menu
      */
@@ -19,27 +20,27 @@ class Menu extends PartInterface {
         this.options = options;
         this.svg     = SVG(selector);
         this.slices  = [];
-        
+
         const {
             padding,
             innerCircleWidth,
             firstLevelSliceWidth,
             nthLevelSliceWidth
         } = this.options;
-        
+
         this.size                = (
             innerCircleWidth * 2
             + firstLevelSliceWidth * 2
             + nthLevelSliceWidth * 2
             + padding * 2
-        ); 
+        );
         this.radius              = (this.size/2)-(padding/2);
         this.radiusWithPadding   = (this.size/2);
         this.innerCircleDiameter = (innerCircleWidth*2)-padding;
         this.degForStep          = 0;
         this.radForStep          = 0;
         this.hasNestedSlices     = null;
-        
+
         this.svg
             .size(this.size, this.size)
             .viewbox(0,0,this.size, this.size)
@@ -50,11 +51,11 @@ class Menu extends PartInterface {
 
     /**
      * Map config array to Slice class instances
-     * 
+     *
      * @returns {Menu}
      */
     draw(){
-        this.hasNestedSlices     = hasNestedSlices(this.slices);                
+        this.hasNestedSlices     = hasNestedSlices(this.slices);
         this.degForStep          = sliceToDeg(this.slices.length);
         this.radForStep          = degToRad(this.degForStep);
 
@@ -83,13 +84,13 @@ class Menu extends PartInterface {
         });
 
         this.createInnerCircle();
-        
+
         return this;
     }
 
     /**
      * Create inner circle, where we can put some additional content
-     * 
+     *
      * @returns {Menu}
      */
     createInnerCircle(){
@@ -108,7 +109,7 @@ class Menu extends PartInterface {
                 ${this.options.innerCircleContent}
             </div>
         `;
-                
+
         this.innerCircle = this.svg
             .group()
             .size(this.innerCircleDiameter)
@@ -124,7 +125,7 @@ class Menu extends PartInterface {
             .style(this.options.styles.innerCircle)
 
         this.innerCircle.node.appendChild(contentElement);
-        
+
         return this;
     }
 
@@ -142,7 +143,7 @@ class Menu extends PartInterface {
     // todo extract these two to ... decorator pattern?
     /**
      * Show menu and triggers show on linked Slices
-     * 
+     *
      * @param time {number} Time for innerCircle
      * @param sliceTime {number} Time for slices
      * @returns {Promise}
@@ -153,7 +154,7 @@ class Menu extends PartInterface {
         return new Promise(resolve => {
             this.innerCircle.animate(time).scale(1).after(() => {
                 let promisesArr =  this.slices.map(slice => slice.show(sliceTime));
-                
+
                 Promise.all(promisesArr).then(resolve);
             });
         });
@@ -181,7 +182,7 @@ class Menu extends PartInterface {
                 });
             });
         });
-        
+
     }
 }
 

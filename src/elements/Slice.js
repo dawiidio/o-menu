@@ -1,16 +1,14 @@
 import {
-    degToRad,
     radToDeg,
-    sliceToDeg,
     getCoordinatesForRads,
-    createElementNS,
-    setStyles
-} from '../utils/utils';
+    createElementNS
+} from '../helpers/utils';
 import objectToCSS from 'object-to-css';
-import PartInterface from './PartInterface';
 import { SLICE_EVENTS } from '../config/defaults';
+import { ISlice } from "../interfaces/ISlice";
+import {OMenuSliceEvent} from "../helpers/oMenuEvents";
 
-class Slice extends PartInterface {
+class Slice extends ISlice {
     /**
      *
      * @param svg {Object} SVG.js element
@@ -155,19 +153,22 @@ class Slice extends PartInterface {
     bindCallbacks(){
         this.group.on('click', ev => {
             ev.preventDefault();
-
-            this.trigger(SLICE_EVENTS.click, this.options.value);
-
-            if(typeof this.options.onClick === 'function')
-                this.options.onClick(ev, this);
-
-            if(!this.slices.length){
-                this.clickValue = this.options.value;
-
-                return false;
-            }
-
             ev.stopPropagation();
+
+            this.triggerEvent(new OMenuSliceEvent({
+                type: SLICE_EVENTS.click,
+                target: this,
+                originalEvent: ev
+            }));
+
+            // if(typeof this.options.onClick === 'function')
+            //     this.options.onClick(ev, this);
+            //
+            // if(!this.slices.length){
+            //     this.clickValue = this.options.value;
+            //
+            //     return false;
+            // }
 
             if(this.isSlicesOpen){
                 this.slices.map(s => s.hide());
@@ -179,8 +180,12 @@ class Slice extends PartInterface {
             }
         });
 
-        this.group.on('hover', () => {
-            this.group.style(this.options.styles.hover);
+        this.group.on('hover', (ev) => {
+          this.triggerEvent(new OMenuSliceEvent({
+              type: SLICE_EVENTS.hover,
+              target: this,
+              originalEvent: ev
+          }));
         });
     }
 
@@ -190,6 +195,7 @@ class Slice extends PartInterface {
     destroy(){
         this.group.off('hover');
         this.group.off('click');
+        this.off();
         this.group.remove();
         this.group = null;
     }

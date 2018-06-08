@@ -3,9 +3,9 @@ import './style.scss';
 import {
     generateColor,
     randomInRange
-} from './utils/utils';
+} from './helpers/utils';
 
-import circleMenuBuilder from './utils/externalApi';
+import circleMenuBuilder from './oMenu';
 
 
 const onOpenCb = () => {
@@ -25,11 +25,11 @@ const onOpenCb = () => {
                 },
                 slices: [
                     {
-                        value: 'message',                        
+                        value: 'message',
                         content: '<i class="fa fa-comment"></i>',
                     },
                     {
-                        value: 'mail', 
+                        value: 'mail',
                         content: '<i class="fa fa-envelope"></i>',
                     }
                 ]
@@ -41,6 +41,7 @@ const onOpenCb = () => {
                         fill: '#FF9800'
                     }
                 },
+                value: 'ediiit something'
             },
             {
                 content: '<i class="fa fa-times"></i>',
@@ -49,6 +50,7 @@ const onOpenCb = () => {
                         fill: '#F44336'
                     }
                 },
+                value: { action: 'remove-something' }
             },
             {
                 content: '<i class="fa fa-bar-chart"></i>',
@@ -105,7 +107,7 @@ const c = circleMenuBuilder('drawing', {
         innerCircleContent: `
             <img src="https://randomuser.me/api/portraits/men/${randomInRange(0, 100)}.jpg" style="width: 100%; height: auto;">
         `
-        
+
     },
     nthSlice: {
         contentSize: 22,
@@ -146,3 +148,7 @@ const c = circleMenuBuilder('drawing', {
         console.log(val);
     }
 });
+
+c.on('sliceClick', ev => {
+    console.log(ev);
+})

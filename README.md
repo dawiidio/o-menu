@@ -41,7 +41,7 @@ Options for menu:
     * **sliceShowTime**:*number* - slice show animation duration
     * **sliceHideTime**:*number* - slice hide animation duration
     * **slices**:*array[object]* - children slices
-    * **value**:*any* - value will be passed as parameter for onEndCloseAnimation callback to identify which slice was clicked
+    * **data**:*any* - data will be passed as parameter for onEndCloseAnimation callback to identify which slice was clicked
     * **onClick**: *function* - callback fired when slice was clicked
     * **styles**:*object*
         * **defaults**:*object* - default styles for slice
@@ -51,7 +51,7 @@ Options for menu:
 * **slices**: *array[object]* - Array of objects which can contains same options as described in slice, options set here are overwrite these set in slice or nthSlice as default.
 * **onOpen**:*function* - callback which can return object with new options for menu, it can overwrite any options set for menu, slice, nthSlice and slices. It's mean, you can change all menu depending eg.: on element which was clicked and show user different options
 * **onClose**:*function* - callback fired immediately after close event
-* **onEndCloseAnimation**:*function* - callback fired after all close animations of menu and slices will ends, in parameter gets value which was set in slice options 
+* **onEndCloseAnimation**:*function* - callback fired after all close animations of menu and slices will ends, in parameter gets data which was set in slice options 
 
 ### Simple example
 ```javascript
@@ -68,7 +68,7 @@ const onOpenCb = () => {
                         fill: '#8BC34A'
                     }
                 },
-                value: 'send email'
+                data: 'send email'
             },
             {
                 content: 'B',
@@ -77,7 +77,7 @@ const onOpenCb = () => {
                         fill: '#F44336'
                     }
                 },
-                value: 'delete user'
+                data: 'delete user'
             }
         ]
     }
@@ -171,7 +171,7 @@ const c = oMenu('main', {
         sliceShowTime: 100,
         sliceHideTime: 100,
         slices: [],
-        value: null,
+        data: null,
         styles: {
             defaults: {
                 cursor: 'pointer',
@@ -198,7 +198,7 @@ const c = oMenu('main', {
         sliceShowTime: 100,
         sliceHideTime: 100,
         slices: [],
-        value: null,
+        data: null,
         styles: {
             defaults: {
                 cursor: 'pointer',

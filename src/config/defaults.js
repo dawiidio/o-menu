@@ -60,7 +60,28 @@ export const SLICE_DEFAULTS = {
     }
 };
 
+export const OPTIONS_DEFAULTS = {
+    menu                : MENU_DEFAULTS,
+    slice               : SLICE_DEFAULTS,
+    nthSlice            : SLICE_DEFAULTS,
+    slices              : [],
+    onOpen              : null
+};
+
 export const SLICE_EVENTS = {
     hover: 'hover',
     click: 'click',
+};
+
+export const EXTERNAL_API_EVENTS = {
+    sliceClick: 'sliceClick',
+    sliceHover: 'sliceHover',
+    openMenu: 'openMenu',
+    closeMenu: 'closeMenu',
+    hideAnimationEnd: 'hideAnimationEnd'
+};
+
+export const INTERNAL_EXTERNAL_EVENTS_MAPPING = {
+    [SLICE_EVENTS.hover]: EXTERNAL_API_EVENTS.sliceHover,
+    [SLICE_EVENTS.click]: EXTERNAL_API_EVENTS.sliceClick,
 };

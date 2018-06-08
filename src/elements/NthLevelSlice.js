@@ -7,7 +7,7 @@ import {
     sliceToDeg,
     getCoordinatesForRads,
     createElementNS
-} from '../utils/utils';
+} from '../helpers/utils';
 
 
 class NthLevelSlice extends Slice {
@@ -25,28 +25,28 @@ class NthLevelSlice extends Slice {
 
         if(this.options.parentFillMode !== 0){
             let fnName = '';
-            
+
             if(this.options.parentFillMode > 0)
                 fnName = 'lighten';
             else if(this.options.parentFillMode < 0)
                 fnName = 'darken';
 
-            bgColorCalculatedFromParent = this.parentFill[fnName]( 
+            bgColorCalculatedFromParent = this.parentFill[fnName](
                 Math.abs(this.options.parentFillMode)
             ).hex();
         }
-        
+
         const radius        = this.data.radius;
 
         this.rotateStepDeg  = 0;
 
         this.startArcRad    = (
-            (this.data.radForStep * this.data.number) 
+            (this.data.radForStep * this.data.number)
             + degToRad(this.data.circleDegOrigin)
             + degToRad(this.data.parentDeg)
         );
         this.endArcRad      = this.data.radForStep + this.startArcRad;
-        
+
         this.coords.arcStart= getCoordinatesForRads(
             this.data.radiusWithPadding,
             radius,
@@ -58,7 +58,7 @@ class NthLevelSlice extends Slice {
             radius,
             this.endArcRad
         );
-        
+
         const [startX, startY] = this.coords.arcStart;
         const [endX, endY]     = this.coords.arcEnd;
 
@@ -69,7 +69,7 @@ class NthLevelSlice extends Slice {
         ];
 
         this.group      = this.parent.group();
-        
+
         const styles = {...this.options.styles.defaults};
 
         if(bgColorCalculatedFromParent)
@@ -81,7 +81,7 @@ class NthLevelSlice extends Slice {
             .style(styles);
 
         this.drawContent();
-        
+
         this.group
             .scale(0.2, this.data.radiusWithPadding, this.data.radiusWithPadding)
             .opacity(0);
@@ -100,14 +100,14 @@ class NthLevelSlice extends Slice {
        );
 
        const [contentX, contentY] = this.coords.content;
-       
+
        const attrs = {
            x           : contentX-(this.options.contentSize/2.15)+this.options.contentMoveX,
            y           : contentY-(this.options.contentSize/1.6)+this.options.contentMoveY,
            width       : this.options.contentSize,
            height      : this.options.contentSize
        };
-       
+
        const contentElement = createElementNS('foreignObject', attrs);
        const calculatedStyles = {
             ...this.options.styles.contentContainer,
@@ -131,7 +131,7 @@ class NthLevelSlice extends Slice {
     // todo extract these two to ... decorator pattern?
     show(time = this.options.sliceShowTime){
         return new Promise((resolve) => {
-            
+
             this.group
                 .opacity(1)
                 .animate(time)
@@ -147,7 +147,7 @@ class NthLevelSlice extends Slice {
                 .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding)
                 .after(() => {
                     this.group.opacity(0)
-                    resolve()                        
+                    resolve()
                 });
         });
     }

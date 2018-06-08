@@ -10,7 +10,7 @@ const config = {
   mode: 'production',
   target: "web",
   entry: {
-    app: './utils/externalApi.js',
+    app: './oMenu.js',
   },
   output: {
     path: path.resolve(__dirname, 'lib'),

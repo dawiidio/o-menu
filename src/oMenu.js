@@ -1,54 +1,48 @@
-import CircleMenu from '../parts/CircleMenu';
-import FirstLevelSlice from '../parts/FirstLevelSlice';
-import NthLevelSlice from '../parts/NthLevelSlice';
+import CircleMenu from './elements/OMenu';
+import FirstLevelSlice from './elements/FirstLevelSlice';
+import NthLevelSlice from './elements/NthLevelSlice';
 import {
     dumpExtend,
-    getValueFromNestedSlice
-} from './utils';
+} from './helpers/utils';
 import {
-    MENU_DEFAULTS,
-    SLICE_DEFAULTS,
-} from '../config/defaults';
-
-const OPTIONS_DEFAULTS = {
-    menu                : MENU_DEFAULTS,
-    slice               : SLICE_DEFAULTS,
-    nthSlice            : SLICE_DEFAULTS,
-    slices              : [],
-    onOpen              : null,
-    onClose             : null,
-    onEndCloseAnimation : null
-};
+    SLICE_EVENTS,
+    EXTERNAL_API_EVENTS,
+    OPTIONS_DEFAULTS,
+    INTERNAL_EXTERNAL_EVENTS_MAPPING
+} from './config/defaults';
+import { IEvent } from "./interfaces/IEvent";
+import { OMenuEventEmitter } from "./helpers/OMenuEventEmitter";
+import { OMenuExternalEvent } from "./helpers/oMenuEvents";
 
 /**
  * Simple factory function for Menu
- * 
+ *
  * @param selector {string}
  * @param newOptions {Object}
  * @param defaultOptions {Object}
  * @returns {Menu}
  */
 const createInstance = (selector, newOptions, defaultOptions) => {
-    const instanceOptions    = dumpExtend({}, defaultOptions, newOptions);
+    const instanceOptions = dumpExtend({}, defaultOptions, newOptions);
 
-    const mapedSlices        = instanceOptions.slices.map( slice => ({...defaultOptions.slice, ...slice}) );
-    const newMenuInstance    = new CircleMenu(selector, instanceOptions.menu);
+    const mappedSlices = instanceOptions.slices.map( slice => ({...defaultOptions.slice, ...slice}) );
+    const newMenuInstance = new CircleMenu(selector, instanceOptions.menu);
 
     const createSlices = (slices, parent) => {
         slices.forEach(sliceOptions => {
-            const isFirstLvl = parent instanceof CircleMenu;            
-            const options    = dumpExtend({}, (isFirstLvl 
-                    ? instanceOptions.slice 
+            const isFirstLvl = parent instanceof CircleMenu;
+            const options = dumpExtend({}, (isFirstLvl
+                    ? instanceOptions.slice
                     : instanceOptions.nthSlice
                 ),
                 sliceOptions
-            ); 
-            
+            );
 
-            const slice      = isFirstLvl 
+
+            const slice = isFirstLvl
                 ? new FirstLevelSlice(newMenuInstance.svg, options)
                 : new NthLevelSlice(newMenuInstance.svg, options);
-    
+
             if(options.slices.length)
                 createSlices(options.slices, slice);
 
@@ -56,29 +50,37 @@ const createInstance = (selector, newOptions, defaultOptions) => {
         });
     };
 
-    createSlices(instanceOptions.slices, newMenuInstance);
+    createSlices(mappedSlices, newMenuInstance);
 
-    return newMenuInstance.draw();
+    return newMenuInstance;
 };
 
 /**
- * 
+ *
  * @param selector
  * @param userOptions
- * @returns {{open: (function()), close: (function())}}
+ * @returns object
  */
 const externalApi = (selector, userOptions) => {
-    let isOpen    = false;
+    let isOpen = false;
     let pendingAnimation = false;
-    
+
     const defaultInstanceOptions = dumpExtend({}, OPTIONS_DEFAULTS, userOptions);
-    
+
     let menuInstance = null;
+
+    const api = new class extends OMenuEventEmitter {
+        get isOpen(){
+            return isOpen;
+        }
+    };
 
     /**
      * close menu
      */
     const close = ev => {
+        const valueForCallback = ev instanceof IEvent ? ev : null;
+
         if(!isOpen || pendingAnimation)
             return Promise.reject();
 
@@ -90,18 +92,13 @@ const externalApi = (selector, userOptions) => {
         return menuInstance
             .hide()
             .then(() => {
-                const value = getValueFromNestedSlice(
-                    menuInstance.slices,
-                    'clickValue'
-                );
-
                 if(typeof defaultInstanceOptions.onEndCloseAnimation === 'function')
-                    defaultInstanceOptions.onEndCloseAnimation(value);
+                    defaultInstanceOptions.onEndCloseAnimation(valueForCallback);
 
                 menuInstance.destroy();
 
-                isOpen = false;       
-                pendingAnimation = false;         
+                isOpen = false;
+                pendingAnimation = false;
             });
     };
 
@@ -124,8 +121,10 @@ const externalApi = (selector, userOptions) => {
             dynamicOptions = defaultInstanceOptions.onOpen(ev);
         else if(manualOpenOptions)
             dynamicOptions = manualOpenOptions;
-        
+
         menuInstance = createInstance(selector, dynamicOptions, defaultInstanceOptions);
+
+        menuInstance.draw();
 
         let positionX = ev.x-menuInstance.radiusWithPadding;
         let positionY = ev.y-menuInstance.radiusWithPadding;
@@ -147,6 +146,12 @@ const externalApi = (selector, userOptions) => {
         if(defaultInstanceOptions.menu.closeMenuOn)
             document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);
 
+        menuInstance.slices.forEach(slice => {
+            slice.on([SLICE_EVENTS.click, SLICE_EVENTS.hover], ev => {
+                api.triggerEvent(new OMenuExternalEvent(ev));
+            });
+        });
+
         isOpen = true;
 
         return menuInstance.show().then(() => {
@@ -156,7 +161,7 @@ const externalApi = (selector, userOptions) => {
 
     /**
      * trigger menu
-     * 
+     *
      * @param ev {Event}
      */
     const trigger = (ev) => {
@@ -170,15 +175,12 @@ const externalApi = (selector, userOptions) => {
 
     if(defaultInstanceOptions.menu.openMenuOn)
         document.body.addEventListener(defaultInstanceOptions.menu.openMenuOn, trigger);
-    
-    return {
-        get isOpen() {
-            return isOpen;
-        },
-        open,
-        close,
-        trigger
-    };
-}
+
+    api.trigger = trigger;
+    api.open = open;
+    api.close = close;
+
+    return api;
+};
 
 export default externalApi;
