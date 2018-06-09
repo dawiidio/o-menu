@@ -8,7 +8,7 @@ import {
 import circleMenuBuilder from './oMenu';
 
 
-const c = circleMenuBuilder('drawing', {
+const c = circleMenuBuilder('mainElement', {
     menu: {
         innerCircleRadius: 55,
         // innerCircleContent: `
@@ -59,20 +59,17 @@ const c = circleMenuBuilder('drawing', {
 
             }
         }
-    },
-    onEndCloseAnimation: val => {
-        console.log(val);
     }
 });
 
-// c.on('sliceEnter', ev => {
-//     console.log(ev);
-// })
+c.on('sliceEnter', ev => {
+    console.log(ev);
+})
 c.on('hideAnimationEnd', ev => {
     console.log(ev);
 })
 
-document.body.addEventListener('contextmenu', ev => {
+document.getElementById('mainElement').addEventListener('contextmenu', ev => {
     ev.preventDefault();
 
     const dynamicMenuOptions = {

@@ -8,23 +8,22 @@ import {
 import {
     SLICE_EVENTS,
     OPTIONS_DEFAULTS,
-    EXTERNAL_API_EVENTS, NATIVE_SLICE_EVENTS
+    EXTERNAL_API_EVENTS
 } from './config/defaults';
 import { IEvent } from "./interfaces/IEvent";
 import { OMenuEventEmitter } from "./helpers/OMenuEventEmitter";
-import {OMenuExternalEvent, OMenuSliceEvent} from "./helpers/oMenuEvents";
+import { OMenuExternalEvent } from "./helpers/oMenuEvents";
+import { positioningFunctions } from './helpers/positioningFunctions';
 
 /**
  * Simple factory function for Menu
  *
  * @param selector {string}
- * @param newOptions {Object}
+ * @param instanceOptions {Object}
  * @param defaultOptions {Object}
  * @returns {Menu}
  */
-const createInstance = (selector, newOptions, defaultOptions) => {
-    const instanceOptions = dumpExtend({}, defaultOptions, newOptions);
-
+const createInstance = (selector, defaultOptions, instanceOptions) => {
     const mappedSlices = instanceOptions.slices.map( slice => ({...defaultOptions.slice, ...slice}) );
     const newMenuInstance = new CircleMenu(selector, instanceOptions.menu);
 
@@ -56,13 +55,17 @@ const createInstance = (selector, newOptions, defaultOptions) => {
 
 /**
  *
- * @param selector
- * @param userOptions
- * @returns object
+ * @param selector {string} dom element id
+ * @param userOptions {object} oMenu options
+ * @returns {{isOpen: *, on((Array<string>|string)=, Function): void, off(string, Function): boolean, triggerEvent(IEvent): void}}
  */
 const externalApi = (selector, userOptions) => {
+    const targetElement = document.getElementById(selector);
     let isOpen = false;
     let pendingAnimation = false;
+
+    if(!targetElement)
+        throw new Error(`oMenu can't find element with id ${selector}`);
 
     const defaultInstanceOptions = dumpExtend({}, OPTIONS_DEFAULTS, userOptions);
 
@@ -139,13 +142,11 @@ const externalApi = (selector, userOptions) => {
     /**
      *
      * @param ev {Event} event which triggers open menu, for positioning purposes
-     * @param manualOpenOptions {object} dynamic options which will be merged
+     * @param dynamicOptions {object} dynamic options which will be merged
      * with default, passed during externalApi fn call
      * @returns {*}
      */
-    const open = (ev, manualOpenOptions) => {
-        let dynamicOptions = {};
-
+    const open = (ev, dynamicOptions) => {
         api.triggerEvent(new OMenuExternalEvent({
             type: EXTERNAL_API_EVENTS.openMenu,
             target: null,
@@ -156,32 +157,25 @@ const externalApi = (selector, userOptions) => {
             return Promise.reject();
 
         if(isOpen)
-            return close().then(() => open(ev, manualOpenOptions));
+            return close().then(() => open(ev, dynamicOptions));
 
         pendingAnimation = true;
 
-        dynamicOptions = manualOpenOptions;
+        const instanceOptions = dumpExtend({}, defaultInstanceOptions, dynamicOptions);
 
-        menuInstance = createInstance(selector, dynamicOptions, defaultInstanceOptions);
+        menuInstance = createInstance(selector, defaultInstanceOptions, instanceOptions);
 
         menuInstance.draw();
 
-        let positionX = ev.x-menuInstance.radiusWithPadding;
-        let positionY = ev.y-menuInstance.radiusWithPadding;
+        // start positioning menu block
+        if(!positioningFunctions[instanceOptions.menu.positioningMode])
+            throw new Error(`No positioning function for mode ${instanceOptions.menu.positioningMode}`);
 
-        const size = menuInstance.size;
-
-        if(positionX < 0)
-            positionX = 0;
-        else if(positionX + size > window.innerWidth)
-            positionX = window.innerWidth - size - 15;
-
-        if(positionY < 0)
-            positionY = 0;
-        else if(positionY + size > window.innerHeight)
-            positionY = window.innerHeight - size;
-
-        menuInstance.svg.style({ transform: `translate3d(${positionX}px, ${positionY}px, 0)` });
+        positioningFunctions[instanceOptions.menu.positioningMode]({
+            menuInstance,
+            targetElement,
+            ev,
+        });
 
         if(defaultInstanceOptions.menu.closeMenuOn)
             document.addEventListener(defaultInstanceOptions.menu.closeMenuOn, close);

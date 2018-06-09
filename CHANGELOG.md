@@ -35,4 +35,17 @@ and to transfer additional data. It can be everything, oMenu don't care
 about data passed in `data` property.
 Property value is delivered with oMenu Event instance in `on` method,
 Event is passed as first param to each callback function used with `on`.
-*  build system updated to webpack 4
+*  build system updated to webpack 4, which resulted  in error in
+library used by oMenu to manage svg elemnts (svg.js). Lib not support
+new ES5 ability to set constructor function `this` to undefined
+rather than reference it to global object (like `window` in browser)
+when it is called without `new` keyword. I sent pull request and issue,
+you can see it [here](https://github.com/svgdotjs/svg.js/issues/866)
+* **positioningMode** _(breaking change)_ new option available in menu
+settings. Tells menu how to positioning on page, takes two possible
+values:
+  *  `relativeToParent` - **default** menu behavior will be similar
+to css absolute element (menu) positionig in relative parent (menu
+parent element)
+  *  `relativeToScreen` - menu behavior will be similar to css `position:
+ fixed`

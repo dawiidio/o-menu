@@ -1,5 +1,11 @@
+export const POSITION_MODES = {
+    fixed: 'relativeToScreen',
+    relative: 'relativeToParent',
+};
+
 export const MENU_DEFAULTS = {
     padding : 10,
+    positioningMode: POSITION_MODES.relative,
     elClass : 'circle-menu',
     circleDegOrigin: -90,
     innerCircleWidth: 45,
@@ -23,11 +29,7 @@ export const MENU_DEFAULTS = {
             zIndex: 9999,
             visibility: 'visible'
         },
-        defaults: {
-            position: 'fixed',
-            top: 0,
-            left: 0
-        }
+        defaults: {}
     }
 };
 

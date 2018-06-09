@@ -50,6 +50,6 @@
   "dependencies": {
     "color": "^2.0.1",
     "object-to-css": "github:natew/object-to-css",
-    "svg.js": "^2.6.5"
+    "svg.js": "github:dawiidio/svg.js#b577ecadbe58c6e02f883afb1dc2d2301f51a257"
   }
 }

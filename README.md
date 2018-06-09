@@ -14,6 +14,12 @@ Options for menu:
 
 * **menu**:
     * **padding**: *number* - padding for menu
+    * **positioningMode**: *string(`relativeToParent`|`relativeToScreen`)* - Tells menu how to positioning on page,
+    takes two possible values
+      *  `relativeToParent` - **default** menu behavior will be similar
+    to css absolute element (menu) positionig in relative parent (menu
+    parent element)
+      *  `relativeToScreen` - menu behavior will be similar to css `position: absolute`
     * **closeMenuOn**: *string|boolean* - close menu on event, if false close only manually by close method in object returns by oMenu function call
     * **elClass**: *string* - css class which will be bounded to the menu main element
     * **circleDegOrigin**: *number* - default is -90
