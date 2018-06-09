@@ -14,7 +14,12 @@ Options for menu:
 
 * **menu**:
     * **padding**: *number* - padding for menu
-    * **openMenuOn**: *string|boolean* - open menu on event, if false opens only manually by open method in object returns by oMenu function call
+    * **positioningMode**: *string(`relativeToParent`|`relativeToScreen`)* - Tells menu how to positioning on page,
+    takes two possible values
+      *  `relativeToParent` - **default** menu behavior will be similar
+    to css absolute element (menu) positionig in relative parent (menu
+    parent element)
+      *  `relativeToScreen` - menu behavior will be similar to css `position: absolute`
     * **closeMenuOn**: *string|boolean* - close menu on event, if false close only manually by close method in object returns by oMenu function call
     * **elClass**: *string* - css class which will be bounded to the menu main element
     * **circleDegOrigin**: *number* - default is -90
@@ -22,7 +27,7 @@ Options for menu:
     * **innerCircleContent**: *string* - HTML string, defines what render in inner circle
     * **firstLevelSliceWidth**: *number* - width of first level slices radius
     * **nthLevelSliceWidth**: *number* - width of second level slices radius
-    * **menuShowTime**: *number* - time in ms, defines speed of innerCircle show animation 
+    * **menuShowTime**: *number* - time in ms, defines speed of innerCircle show animation
     * **menuHideTime**: *number* - time in ms, defines speed of innerCircle hide animation
     * **styles**: *object* - all styles needs to be written in camel case notation
         * **innerCircle**: *object* - any initial CSS styles for inner circle
@@ -34,57 +39,31 @@ Options for menu:
     * **contentMoveX**:*number* - slice content move in pixels at x axis
     * **contentMoveY**:*number* - slice content move in pixels at y axis
     * **parentFillMode**:*number* - Number in range -1 to 1. Negative - color darker, positive - color brighter, 0 - not set.
-    Option for nested slices. When it is different from zero fill color will be based on parent's color, but will be darker or brighter depending on the parentFillMode value. 
+    Option for nested slices. When it is different from zero fill color will be based on parent's color, but will be darker or brighter depending on the parentFillMode value.
     * **iconDistanceFromInnerCircle**:*number* content distance from inner circle, for nested slices inner circle is radius of parent's slices
     * **content**:*string* - HTML string with content for slice
     * **sliceClass**:*string* - class which will be appiled to slice element
     * **sliceShowTime**:*number* - slice show animation duration
     * **sliceHideTime**:*number* - slice hide animation duration
     * **slices**:*array[object]* - children slices
-    * **value**:*any* - value will be passed as parameter for onEndCloseAnimation callback to identify which slice was clicked
+    * **data**:*any* - data will be passed as property of Event parameter for `on` callback
     * **onClick**: *function* - callback fired when slice was clicked
     * **styles**:*object*
         * **defaults**:*object* - default styles for slice
         * **contentContainer**:*object* - slice content container default styles
-        * **hover**:*object*: styles appiled to slice after hover on it 
+        * **hover**:*object*: styles appiled to slice after hover on it
 * **nthSlice**: *object* - Default options for second level slices, same as slice
 * **slices**: *array[object]* - Array of objects which can contains same options as described in slice, options set here are overwrite these set in slice or nthSlice as default.
 * **onOpen**:*function* - callback which can return object with new options for menu, it can overwrite any options set for menu, slice, nthSlice and slices. It's mean, you can change all menu depending eg.: on element which was clicked and show user different options
 * **onClose**:*function* - callback fired immediately after close event
-* **onEndCloseAnimation**:*function* - callback fired after all close animations of menu and slices will ends, in parameter gets value which was set in slice options 
+* **onEndCloseAnimation**:*function* - callback fired after all close animations of menu and slices will ends, in parameter gets data which was set in slice options
 
 ### Simple example
 ```javascript
 import oMenu from 'o-menu';
 
-// open menu callback which will deliver slices
-const onOpenCb = () => {
-    return {
-        slices :[
-            {
-                content: 'A',
-                styles:{
-                    defaults: {
-                        fill: '#8BC34A'
-                    }
-                },
-                value: 'send email'
-            },
-            {
-                content: 'B',
-                styles:{
-                    defaults: {
-                        fill: '#F44336'
-                    }
-                },
-                value: 'delete user'
-            }
-        ]
-    }
-};
-
-// create menu instance, firstly you need to pass parent element id for menu, secondly default options for menu 
-const c = oMenu('main', {
+// create menu instance, firstly you need to pass parent element id for menu, secondly default options for menu
+const omenu = oMenu('main', {
     menu: {
         innerCircleRadius: 55
     },
@@ -116,17 +95,72 @@ const c = oMenu('main', {
     }
 });
 
+omenu.on('sliceEnter', ev => {
+    console.log(ev); // => oMenu Event
+});
+
+document.body.addEventListener('contextmenu', ev => {
+    ev.preventDefault();
+
+    omenu.open(ev, {
+       slices :[
+           {
+               content: 'A',
+               styles:{
+                   defaults: {
+                       fill: '#8BC34A'
+                   }
+               },
+               data: 'send email'
+           },
+           {
+               content: 'B',
+               styles:{
+                   defaults: {
+                       fill: '#F44336'
+                   }
+               },
+               data: 'delete user'
+           }
+       ]
+    });
+}
+
 /**
  in const c we have object with three methods for manual open, close and trigger menu
  c = {
     open: function(ev, options){...} - function which opens menu, requires event in first param and dynamic menu options
                                        for second. WARNING! if you open menu manually, onOpen callback will never be called
-                                       therfore you need to pass options directly to open method. 
+                                       therfore you need to pass options directly to open method.
     close: function(ev){...} - function which close menu, requires event in first param
     trigger: function(ev){...} - function which triggers menu
  }
 */
 ```
+## API
+When `oMenu('main', ...)` function is called, returns object which provides
+api for menu management, it looks like:
+*  **open(ev, dynamicOptions)** - function which opens menu, requires event in first param and dynamic menu options for
+second.
+*  **close(ev)** - function which close menu, requires event in first param
+*  **trigger(ev)** - function which triggers menu
+*  **on(eventName, cb)** - works exactly like well known equivalents from other libraries. Accepts two params -
+string with event name and callback function. Callback functions gets in first param oMenu special Event class instance.
+List of all available events: `sliceClick`, `sliceEnter`, `sliceLeave`, `openMenu`, `closeMenu`, `hideAnimationEnd`,
+`showAnimationEnd`.
+oMenu Event shape:
+
+```
+{
+ "originalEvent": oMenuEvent|Event|null, - original event which triggered action
+ "type": string, -  one of mentioned above events
+ "data": any|null, - data passed by user in slice definition
+ "target": Slice|null, - target slice
+ "hasNestedSlices": boolean|number, - if Slice event and target slice has slices
+ "isSlice": boolean - if slice then true
+}
+```
+
 
 ## Full default options
 ```javascript
@@ -171,7 +205,7 @@ const c = oMenu('main', {
         sliceShowTime: 100,
         sliceHideTime: 100,
         slices: [],
-        value: null,
+        data: null,
         styles: {
             defaults: {
                 cursor: 'pointer',
@@ -183,7 +217,7 @@ const c = oMenu('main', {
                 cursor: 'pointer'
             },
             hover: {
-                
+
             }
         }
     },
@@ -198,7 +232,7 @@ const c = oMenu('main', {
         sliceShowTime: 100,
         sliceHideTime: 100,
         slices: [],
-        value: null,
+        data: null,
         styles: {
             defaults: {
                 cursor: 'pointer',
@@ -210,13 +244,10 @@ const c = oMenu('main', {
                 cursor: 'pointer'
             },
             hover: {
-                
+
             }
         }
     },
-    slices              : [],
-    onOpen              : null,
-    onClose             : null,
-    onEndCloseAnimation : null
+    slices              : []
 }
 ```

@@ -1,17 +1,16 @@
 import {
-    degToRad,
     radToDeg,
-    sliceToDeg,
     getCoordinatesForRads,
-    createElementNS,
-    setStyles
-} from '../utils/utils';
+    createElementNS
+} from '../helpers/utils';
 import objectToCSS from 'object-to-css';
-import PartInterface from './PartInterface';
+import { SLICE_EVENTS, NATIVE_SLICE_EVENTS } from '../config/defaults';
+import { ISlice } from "../interfaces/ISlice";
+import { OMenuSliceEvent } from "../helpers/oMenuEvents";
 
-class Slice extends PartInterface {
+class Slice extends ISlice {
     /**
-     * 
+     *
      * @param svg {Object} SVG.js element
      * @param options {Object} Options for Slice
      */
@@ -46,7 +45,7 @@ class Slice extends PartInterface {
 
         this.startArcRad    = this.data.radForStep * this.data.number;
         this.endArcRad      = this.data.radForStep + this.startArcRad;
-        
+
         this.coords.arcStart= getCoordinatesForRads(
             this.data.radiusWithPadding,
             radius,
@@ -58,7 +57,7 @@ class Slice extends PartInterface {
             radius,
             this.endArcRad
         );
-        
+
         const [startX, startY] = this.coords.arcStart;
         const [endX, endY]     = this.coords.arcEnd;
 
@@ -87,7 +86,7 @@ class Slice extends PartInterface {
         }
 
         this.group      = this.parent.group();
-        
+
         this.group
             .addClass(this.options.sliceClass)
             .path(this.pathArray.join(' '))
@@ -97,8 +96,8 @@ class Slice extends PartInterface {
 
         this.group
             .rotate(
-                this.rotateStepDeg, 
-                this.data.radiusWithPadding, 
+                this.rotateStepDeg,
+                this.data.radiusWithPadding,
                 this.data.radiusWithPadding
             )
             .scale(0.01, this.data.radiusWithPadding, this.data.radiusWithPadding);
@@ -119,7 +118,7 @@ class Slice extends PartInterface {
         );
 
         const [contentX, contentY] = this.coords.content;
-        
+
         const attrs = {
             x           : contentX-(this.options.contentSize/2.15)+this.options.contentMoveX,
             y           : contentY-(this.options.contentSize/1.6)+this.options.contentMoveY,
@@ -127,13 +126,14 @@ class Slice extends PartInterface {
             height      : this.options.contentSize,
             transform   : `rotate(${Math.abs(this.data.circleDegOrigin)} ${contentX} ${contentY})`
         };
-        
+
         const contentElement   = createElementNS('foreignObject', attrs);
         const calculatedStyles = {
             ...this.options.styles.contentContainer,
             ...{
                 width : this.options.contentSize,
-                height: this.options.contentSize
+                height: this.options.contentSize,
+                pointerEvents: 'none', // hack https://stackoverflow.com/a/18837002
             }
         };
 
@@ -144,49 +144,41 @@ class Slice extends PartInterface {
                 ${this.options.content}
             </div>
         `;
-        
+
         this.group.node.appendChild(contentElement);
     }
 
     /**
-     * Adds callbacks for events
+     * Adds callbacks for events and map them to internal events
      */
     bindCallbacks(){
-        this.group.on('click', ev => {
-            ev.preventDefault();
+        Object
+            .keys(NATIVE_SLICE_EVENTS)
+            .forEach(eventName => {
+                this.group.on(eventName, ev => {
+                    if (eventName === 'click') {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    }
 
-            if(typeof this.options.onClick === 'function')
-                this.options.onClick(ev, this);
-
-            if(!this.slices.length){
-                this.clickValue = this.options.value;
-
-                return false;
-            }
-
-            ev.stopPropagation();
-
-            if(this.isSlicesOpen){
-                this.slices.map(s => s.hide());
-                this.isSlicesOpen = false;
-            }
-            else {
-                this.slices.map(s => s.show());
-                this.isSlicesOpen = true;
-            }
-        });
-        
-        this.group.on('hover', () => {
-            this.group.style(this.options.styles.hover);
-        });
+                    this.triggerEvent(new OMenuSliceEvent({
+                        type: NATIVE_SLICE_EVENTS[ev.type],
+                        target: this,
+                        originalEvent: ev
+                    }));
+                })
+            });
     }
 
     /**
      * Destroying class instance
      */
     destroy(){
-        this.group.off('hover');
-        this.group.off('click');
+        Object
+            .keys(NATIVE_SLICE_EVENTS)
+            .forEach(eventName => this.group.off(eventName));
+
+        this.off();
         this.group.remove();
         this.group = null;
     }

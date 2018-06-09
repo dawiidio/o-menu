@@ -1,11 +1,19 @@
 body{
   padding: 0;
   margin: 0;
+  padding-top: 1px;
+  margin-top: -1px;
+
 }
 
-#drawing{
+#mainElement{
   background-color: #ececec;
   min-height: 200vh;
+  width: 80%;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  position: relative;
 }
 
         /**
@@ -41,7 +49,7 @@ body{
     }
 
     &:nth-child(2){
-      
+
     }
   }
 }
