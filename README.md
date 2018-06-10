@@ -54,9 +54,6 @@ Options for menu:
         * **hover**:*object*: styles appiled to slice after hover on it
 * **nthSlice**: *object* - Default options for second level slices, same as slice
 * **slices**: *array[object]* - Array of objects which can contains same options as described in slice, options set here are overwrite these set in slice or nthSlice as default.
-* **onOpen**:*function* - callback which can return object with new options for menu, it can overwrite any options set for menu, slice, nthSlice and slices. It's mean, you can change all menu depending eg.: on element which was clicked and show user different options
-* **onClose**:*function* - callback fired immediately after close event
-* **onEndCloseAnimation**:*function* - callback fired after all close animations of menu and slices will ends, in parameter gets data which was set in slice options
 
 ### Simple example
 ```javascript
