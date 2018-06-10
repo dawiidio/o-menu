@@ -12,7 +12,7 @@ for more user friendly.
 *  _(breaking change)_ From now oMenu doesn't open automaticly with `contextmenu` event. It
 needs to be provided by the user, then we call on instance returned by
  external api `open(ev, dynamicOptions)` to open menu.
-*  **onOpen** _(breaking change)_ callback has removed. If you want pass dynamic options
+*  **onOpen, onClose, onEndCloseAnimation** _(breaking change)_ callbacks has removed. If you want pass dynamic options
 when menu opens, put them in second parameter of `open` method mentioned
 before.
 *  **on** new method has come to api, it works exactly like well
